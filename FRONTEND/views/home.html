@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <title>Cinexus - Home</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #0b0b0f;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1a0f2e, #5a2ea6);
+            padding: 60px;
+            text-align: center;
+        }
+        .movie-card {
+            background-color: #141420;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform .2s;
+        }
+        .movie-card:hover {
+            transform: scale(1.05);
+        }
+        .btn-purple {
+            background-color: #6f42c1;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand">🎬 Cinexus</span>
+    <div>
+        <span id="userName" class="me-3"></span>
+        <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<section class="hero text-white">
+    <h1>Discover and Review Movies</h1>
+    <p>Millions of movies, millions of reviews</p>
+
+    <div class="d-flex justify-content-center mt-3">
+        <input id="searchInput" type="text" class="form-control w-50 me-2" placeholder="Search movie...">
+        <button class="btn btn-purple" onclick="renderMovies()">Search</button>
+    </div>
+</section>
+
+<div class="container mt-5">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <span aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M6.5 10.793V14l3-1.5v-1.707L14.146 5.5A.5.5 0 0 0 14 4.793V3.5A.5.5 0 0 0 13.5 3h-11a.5.5 0 0 0-.5.5v1.293a.5.5 0 0 0-.146.707l4.646 5.293z"/>
+            </svg>
+        </span>
+        <p class="mb-0">Filters</p>
+    </div>
+    <!-- FILTROS -->
+    <div class="d-flex gap-3 mb-4">
+        <select id="genreFilter" class="form-select w-auto" onchange="renderMovies()">
+            <option value="">All Genres</option>
+            <option value="Acción">Action</option>
+            <option value="Drama">Drama</option>
+            <option value="Comedia">Comedy</option>
+        </select>
+
+        <select id="yearFilter" class="form-select w-auto" onchange="renderMovies()">
+            <option value="">All Years</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+        </select>
+    </div>
+
+    <h3 class="mb-4">Recent Movies</h3>
+
+    <div id="moviesContainer" class="row g-4"></div>
+
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('user'));
+
+if(!user){
+    window.location.href = 'login-register.html';
+}
+
+document.getElementById('userName').textContent = user.name;
+
+// DATA HARDCODEADA
+const movies = [
+    {title: "Project Hail Mary", genre: "Sci-fi", year: "2026", img: "https://m.media-amazon.com/images/M/MV5BNTkwNzJiYTctNzI3NC00NjE1LTlhYjktY2Q5MTdmMWFmNzcxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"},
+    {title: "Drama", genre: "Drama", year: "2026", img: "https://m.media-amazon.com/images/M/MV5BMTcwOGZhYmItYTg3ZS00NjUwLWJiMmQtMjU5YjEwYWY0NmNkXkEyXkFqcGc@._V1_.jpg"},
+    {title: "Mercy", genre: "Thriller", year: "2026", img: "https://www.sonypictures.co.uk/sites/unitedkingdom/files/2025-12/2717_SP_MERCY_Poster_1sheet_Dated_1mb.jpg"},
+    {title: "Zootopia 2", genre: "Comedy", year: "2025", img: "https://m.media-amazon.com/images/M/MV5BYjg1Mjc3MjQtMTZjNy00YWVlLWFhMWEtMWI3ZTgxYjJmNmRlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"},
+];
+
+// RENDER
+function renderMovies(){
+    const genre = document.getElementById('genreFilter').value;
+    const year = document.getElementById('yearFilter').value;
+    const search = document.getElementById('searchInput').value.toLowerCase();
+
+    const container = document.getElementById('moviesContainer');
+    container.innerHTML = "";
+
+    const filtered = movies.filter(m => {
+        return (!genre || m.genre === genre) &&
+               (!year || m.year === year) &&
+               (!search || m.title.toLowerCase().includes(search));
+    });
+
+    if(filtered.length === 0){
+        container.innerHTML = "<p class='text-white'>No hay resultados</p>";
+        return;
+    }
+
+    filtered.forEach(m => {
+        container.innerHTML += `
+        <div class="col-md-3">
+            <div class="movie-card">
+                <img src="${m.img}" class="w-100">
+                <div class="p-2 text-white">
+                    <strong>${m.title}</strong><br>
+                    <small>${m.genre} | ${m.year}</small>
+                </div>
+            </div>
+        </div>
+        `;
+    });
+}
+
+// INIT
+renderMovies();
+
+function logout(){
+    localStorage.removeItem('user');
+    window.location.href = 'login-register.html';
+}
+</script>
+
+</body>
+</html>

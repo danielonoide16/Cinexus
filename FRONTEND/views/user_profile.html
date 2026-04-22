@@ -117,14 +117,13 @@
             }
             .review-meta {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
                 margin-bottom: 8px;
                 font-size: 0.85rem;
             }
 
             .date {
-                color: #aaa;
+                color: #b8b6b6b4;
             }
             .user-link {
                 display: inline-flex;
@@ -160,6 +159,77 @@
             .home-link:active {
                 transform: translateY(0);
             }
+            .lists-layout {
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                gap: 20px;
+            }
+            .lists-sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .list-card {
+                background: #1a1a24;
+                padding: 15px;
+                border-radius: 12px;
+                border: 1px solid #2a2a35;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+            .list-card:hover {
+                border-color: #6f42c1;
+                box-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
+            }
+
+            .list-card.active {
+                border-color: #6f42c1;
+                background: rgba(111, 66, 193, 0.15);
+            }
+
+            .list-card h5 {
+                margin-bottom: 5px;
+                font-size: 0.95rem;
+            }
+
+            .list-card p {
+                font-size: 0.8rem;
+                color: #aaa;
+            }
+            .badge {
+                font-size: 0.7rem;
+                background: #2a2a35;
+            }
+            .lists-content {
+                background: #1a1a24;
+                border-radius: 12px;
+                border: 1px solid #2a2a35;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #777;
+            }
+            .list-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .list-actions span {
+                margin-left: 8px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                opacity: 0.7;
+                transition: 0.2s;
+            }
+
+            .list-actions span:hover {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            .list-actions span {
+                pointer-events: auto;
+            }
         </style>
     </head>
 
@@ -176,56 +246,171 @@
         <main class="container py-4">
             <!-- Personal Information -->
             <section id="personal-info" class="mb-4">
-            <div class="card d-flex flex-row align-items-center">
-                <div class="avatar">J</div>
-                <div class="details flex-grow-1">
-                    <p class="mb-1"><strong>Name:</strong> Jhon Doe</p>
-                    <p class="mb-0"><strong>Email:</strong> jhon.doe@example.com</p>
+                <div class="card d-flex flex-row align-items-center">
+                    <div class="avatar">JD</div>
+                    <div class="details flex-grow-1">
+                        <p><strong>Name:</strong> <span id="profileName">Jhon Doe</span></p>
+                        <p><strong>Email:</strong> <span id="profileEmail">jhon.doe@example.com</span></p>
+                        <p><strong>Who I am?:</strong> <span id="profileBio">I am a film enthusiast who loves to watch and review movies.</span></p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit</button>
                 </div>
-                <button class="btn btn-primary">Edit</button>
-            </div>
-        </section>
+            </section>
 
 
         <!-- My Activity -->
         <section id="my-activity">
             <div class="card p-3">
                 <h2 class="mb-3">My Activity</h2>
-                <ul class="tabs">
-                    <li class="active">My Reviews (2)</li>
-                    <li>My Lists (3)</li>
+                <ul class="tabs list-unstyled">
+                    <li class="active" onclick="showTab('reviews')">My Reviews (2)</li>
+                    <li onclick="showTab('lists')">My Lists (3)</li>
                 </ul>
 
                 <!-- My Reviews -->
-                <div class="reviews">
-                    <article class="review" onclick="goToMovie('shawshank')">
-                        <h4>The Shawshank Redemption</h4>
-                        <div class="review-meta">
-                            <span class="stars">★★★★★</span>
-                            <span class="date"><em>Date:</em> 11/3/2024</span>
-                        </div>
-                        <p>
-                            An absolute masterpiece. One of the best films ever made. 
-                            The story is compelling, the acting is superb, and the message is timeless.
-                        </p>
-                    </article>
+                <div id="reviews-section" class="tab-content">
+                    <div class="reviews">
+                        <article class="review" onclick="goToMovie('shawshank')">
+                            <h4>The Shawshank Redemption</h4>
+                            <div class="review-meta">
+                                <span class="stars">★★★★★</span>
+                                <span class="date">11/3/2024</span>
+                            </div>
+                            <p>
+                                An absolute masterpiece. One of the best films ever made. 
+                                The story is compelling, the acting is superb, and the message is timeless.
+                            </p>
+                        </article>
 
-                    <article class="review" onclick="goToMovie('The Dark Knight')">
-                        <h4>The Dark Knight</h4>
-                        <div class="review-meta">
-                            <span class="stars">★★★★★</span>
-                            <span class="date"><em>Date:</em> 11/3/2024</span>
-                        </div>
-                        <p>
-                            Heath Ledger’s performance as the Joker is legendary. 
-                            The best superhero movie ever made.
-                        </p>
-                    </article>
+                        <article class="review" onclick="goToMovie('The Dark Knight')">
+                            <h4>The Dark Knight</h4>
+                            <div class="review-meta">
+                                <span class="stars">★★★★★</span>
+                                <span class="date">11/3/2024</span>
+                            </div>
+                            <p>
+                                Heath Ledger's performance as the Joker is legendary. 
+                                The best superhero movie ever made.
+                            </p>
+                        </article>
+                    </div>
                 </div>
+                <!-- My Lists -->
+                <div id="lists-section" class="tab-content d-none">
+                    <div class="d-flex justify-content-end mb-2">
+                        <button class="btn btn-primary btn-sm" onclick="createNewList()">+ New List</button>
+                    </div>
+                    <div class="lists-layout">
+
+                        <div class="lists-sidebar" id="listsContainer">
+                            <div class="list-card active" onclick="selectList(this, 'classics')">
+                                <div class="list-header">
+                                    <h5>My Favorite Classics</h5>
+                                    <div class="list-actions">
+                                        <span onclick="editList(event)">✏️</span>
+                                        <span onclick="deleteList(event)">🗑️</span>
+                                    </div>
+                                </div>
+                                <p>Timeless movies that I can watch over and over again</p>
+                                <span class="badge">3 movies</span>
+                            </div>
+
+                            <div class="list-card" onclick="selectList(this, 'nolan')">
+                                <div class="list-header">
+                                    <h5>Nolan Collection</h5>
+                                    <div class="list-actions">
+                                        <span onclick="editList(event)">✏️</span>
+                                        <span onclick="deleteList(event)">🗑️</span>
+                                    </div>
+                                </div>
+                                <p>All my favorite Christopher Nolan films</p>
+                                <span class="badge">3 movies</span>
+                            </div>
+
+                            <div class="list-card" onclick="selectList(this, 'scifi')">
+                                <div class="list-header">
+                                    <h5>Must Watch Sci-Fi</h5>
+                                    <div class="list-actions">
+                                        <span onclick="editList(event)">✏️</span>
+                                        <span onclick="deleteList(event)">🗑️</span>
+                                    </div>
+                                </div>
+                                <p>Essential science fiction movies</p>
+                                <span class="badge">3 movies</span>
+                            </div>
+                        </div>
+
+                        <div class="lists-content" id="listContent">
+                            <p>Select a list to view its content</p>
+                        </div>
+
+                    </div>
+                </div>     
             </div>
         </section>
         
         </main>
+        
+        
+        <div
+            class="modal fade"
+            id="editProfileModal"
+            tabindex="-1"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            
+            role="dialog"
+            aria-labelledby="modalTitleId"
+            aria-hidden="true"
+        >
+            <div
+                class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+                role="document"
+            >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitleId">
+                            Edit Profile
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="profileForm">
+
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" id="inputName" value="Jhon Doe">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="inputEmail" value="jhon.doe@example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Bio</label>
+                                <textarea class="form-control" id="inputBio" rows="3">I am a film enthusiast who loves to watch and review movies.</textarea>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <footer class="text-center py-3">
             <small>&copy; 2026 Cinexus - All rights reserved</small>
         </footer>
@@ -236,6 +421,14 @@
             crossorigin="anonymous"
         ></script>
         <script>
+            //harcoded data for lists - in a real app this would come from the backend
+            const listData = {
+                classics: ["The Godfather", "Casablanca", "Citizen Kane"],
+                nolan: ["Inception", "Interstellar", "The Dark Knight"],
+                scifi: ["Blade Runner", "The Matrix", "Arrival"]
+            };
+
+
             function goToMovie(movieID) {
                 window.location.href = 'movie_details.html'; // Pass the movie ID to the details page in the future
             }
@@ -250,6 +443,53 @@
             }
             function goToHome(){
                 window.location.href = 'home.html';
+            }
+            function showTab(tab) {
+                const reviews = document.getElementById("reviews-section");
+                const lists = document.getElementById("lists-section");
+                const tabs = document.querySelectorAll(".tabs li");
+
+                tabs.forEach(t => t.classList.remove("active"));
+
+                if (tab === "reviews") {
+                    reviews.classList.remove("d-none");
+                    lists.classList.add("d-none");
+                    tabs[0].classList.add("active");
+                } else {
+                    reviews.classList.add("d-none");
+                    lists.classList.remove("d-none");
+                    tabs[1].classList.add("active");
+                }
+            }
+            function selectList(element, listId) {
+                const cards = document.querySelectorAll(".list-card");
+                cards.forEach(c => c.classList.remove("active"));
+                element.classList.add("active");
+
+                const content = document.getElementById("listContent");
+
+                const movies = listData[listId] || [];
+
+                content.innerHTML = `
+                    <div>
+                        <h5>${element.querySelector("h5").innerText}</h5>
+                        <ul>
+                            ${movies.map(m => `<li>${m}</li>`).join("")}
+                        </ul>
+                    </div>
+                `;
+            }
+            //placeholder functions for list actions
+            function createNewList() {
+                alert("Create new list (fake)");
+            }
+            function editList(event) {
+                event.stopPropagation();
+                alert("Edit list (fake)");
+            }
+            function deleteList(event) {
+                event.stopPropagation();
+                alert("Delete list (fake)");
             }
         </script>
     </body>

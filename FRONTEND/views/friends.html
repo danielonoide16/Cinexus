@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 <head>
-    <title>Cinexus - Amigos</title>
+    <title>Cinexus - Friends</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -24,24 +24,24 @@
     <span class="navbar-brand nav-link" onclick="window.location.href='home.html'">Cinexus</span>
     <div>
         <span id="nombreUsuario" class="me-3 nav-link" onclick="window.location.href='user_profile.html'"></span>
-        <button class="btn btn-outline-light" onclick="cerrarSesion()">Salir</button>
+        <button class="btn btn-outline-light" onclick="cerrarSesion()">Logout</button>
     </div>
 </nav>
 
 <div class="container py-5" style="max-width:700px">
 
-    <h2 class="text-white mb-4">Amigos</h2>
+    <h2 class="text-white mb-4">Friends</h2>
 
     <ul class="tabs">
-        <li class="active" onclick="mostrarTab('buscar')">Buscar usuarios</li>
-        <li onclick="mostrarTab('solicitudes')">Solicitudes <span id="contadorSolicitudes" class="badge ms-1" style="background:#6f42c1"></span></li>
-        <li onclick="mostrarTab('amigos')">Mis amigos</li>
+        <li class="active" onclick="mostrarTab('buscar')">Find Users</li>
+        <li onclick="mostrarTab('solicitudes')">Requests <span id="contadorSolicitudes" class="badge ms-1" style="background:#6f42c1"></span></li>
+        <li onclick="mostrarTab('amigos')">My Friends</li>
     </ul>
 
     <div id="tab-buscar">
         <div class="d-flex gap-2 mb-4">
-            <input id="inputBusqueda" type="text" class="form-control" placeholder="Buscar por nombre...">
-            <button class="btn btn-morado" onclick="buscarUsuarios()">Buscar</button>
+            <input id="inputBusqueda" type="text" class="form-control" placeholder="Search by name...">
+            <button class="btn btn-morado" onclick="buscarUsuarios()">Search</button>
         </div>
         <div id="resultadosBusqueda" class="d-flex flex-column gap-3"></div>
     </div>
@@ -56,7 +56,7 @@
 
 </div>
 
-<footer class="text-center py-3"><small>&copy; 2026 Cinexus - Todos los derechos reservados</small></footer>
+<footer class="text-center py-3"><small>&copy; 2026 Cinexus - All rights reserved</small></footer>
 
 <script>
 const usuario = JSON.parse(localStorage.getItem('user'));
@@ -91,14 +91,14 @@ function buscarUsuarios() {
     const resultados = todosLosUsuarios.filter(u => u.nombre.toLowerCase().includes(busqueda));
     const contenedor = document.getElementById('resultadosBusqueda');
 
-    if (!resultados.length) { contenedor.innerHTML = '<p class="text-secondary">No se encontraron usuarios.</p>'; return; }
+    if (!resultados.length) { contenedor.innerHTML = '<p class="text-secondary">No users found.</p>'; return; }
 
     contenedor.innerHTML = resultados.map(u => {
         let boton = amigos.includes(u.nombre)
             ? `<span class="badge bg-success">Amigos</span>`
             : solicitudesEnviadas.includes(u.nombre)
-                ? `<button class="btn btn-sm btn-secondary" disabled>Solicitud enviada</button>`
-                : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.nombre}')">Agregar</button>`;
+                ? `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`
+                : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.nombre}')">Add Friend</button>`;
         return tarjetaUsuario(u, boton);
     }).join('');
 }
@@ -110,14 +110,14 @@ function enviarSolicitud(nombre) {
 
 function mostrarSolicitudes() {
     const contenedor = document.getElementById('listaSolicitudes');
-    if (!solicitudesRecibidas.length) { contenedor.innerHTML = '<p class="text-secondary">Sin solicitudes pendientes.</p>'; return; }
+    if (!solicitudesRecibidas.length) { contenedor.innerHTML = '<p class="text-secondary">No pending requests.</p>'; return; }
 
     contenedor.innerHTML = solicitudesRecibidas.map(nombre => {
         const u = todosLosUsuarios.find(x => x.nombre === nombre);
         const boton = `
             <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-morado" onclick="aceptarSolicitud('${nombre}')">Aceptar</button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="rechazarSolicitud('${nombre}')">Rechazar</button>
+                <button class="btn btn-sm btn-morado" onclick="aceptarSolicitud('${nombre}')">Accept</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="rechazarSolicitud('${nombre}')">Decline</button>
             </div>`;
         return tarjetaUsuario(u, boton);
     }).join('');
@@ -141,7 +141,7 @@ function rechazarSolicitud(nombre) {
 
 function mostrarAmigos() {
     const contenedor = document.getElementById('listaAmigos');
-    if (!amigos.length) { contenedor.innerHTML = '<p class="text-secondary">Aún no tienes amigos.</p>'; return; }
+    if (!amigos.length) { contenedor.innerHTML = '<p class="text-secondary">No friends yet.</p>'; return; }
     contenedor.innerHTML = amigos.map(nombre => {
         const u = todosLosUsuarios.find(x => x.nombre === nombre);
         return tarjetaUsuario(u, `<span class="badge bg-success">Amigos</span>`);

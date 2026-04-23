@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 <head>
-    <title>Cinexus - Detalle de película</title>
+    <title>Cinexus - Movie Details</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -25,7 +25,7 @@
     <span class="navbar-brand nav-link" onclick="window.location.href='home.html'">Cinexus</span>
     <div>
         <span id="nombreUsuario" class="me-3 nav-link" onclick="window.location.href='user_profile.html'"></span>
-        <button class="btn btn-outline-light" onclick="cerrarSesion()">Salir</button>
+        <button class="btn btn-outline-light" onclick="cerrarSesion()">Logout</button>
     </div>
 </nav>
 
@@ -40,21 +40,26 @@
             <p class="text-secondary" id="meta"></p>
             <p class="text-white-50" id="descripcion"></p>
 
+            <!-- Trailer placeholder - conectar con backend -->
+            <div class="ratio ratio-16x9 mt-3">
+                <iframe src="" title="Trailer" allowfullscreen></iframe>
+            </div>
+
             <div class="d-flex align-items-center gap-2 mt-3">
                 <select id="selectLista" class="form-select w-auto">
-                    <option value="">Agregar a lista...</option>
-                    <option value="clasicos">Mis Clásicos Favoritos</option>
-                    <option value="nolan">Colección Nolan</option>
-                    <option value="scifi">Sci-Fi Imperdibles</option>
+                    <option value="">Add to list...</option>
+                    <option value="clasicos">My Favorite Classics</option>
+                    <option value="nolan">Nolan Collection</option>
+                    <option value="scifi">Must Watch Sci-Fi</option>
                 </select>
-                <button class="btn btn-morado" onclick="agregarALista()">+ Agregar</button>
+                <button class="btn btn-morado" onclick="agregarALista()">+ Add</button>
             </div>
             <small id="mensajeLista" class="text-success mt-1 d-block"></small>
         </div>
     </div>
 
     <div class="caja-oscura p-4 mb-5">
-        <h4 class="text-white mb-3">Escribir reseña</h4>
+        <h4 class="text-white mb-3">Write a Review</h4>
         <div id="selectorEstrellas" class="mb-2">
             <span class="estrella-btn" data-v="1">&#9733;</span>
             <span class="estrella-btn" data-v="2">&#9733;</span>
@@ -62,72 +67,89 @@
             <span class="estrella-btn" data-v="4">&#9733;</span>
             <span class="estrella-btn" data-v="5">&#9733;</span>
         </div>
-        <textarea id="textoResena" class="form-control mb-3" rows="3" placeholder="Comparte tu opinión"></textarea>
-        <button class="btn btn-morado" onclick="publicarResena()">Publicar</button>
+        <textarea id="textoResena" class="form-control mb-3" rows="3" placeholder="Share your thoughts..."></textarea>
+        <button class="btn btn-morado" onclick="publicarResena()">Post</button>
     </div>
 
-    <h4 class="text-white mb-3">Reseñas</h4>
+    <h4 class="text-white mb-3">Reviews</h4>
     <div id="contenedorResenas"></div>
 
 </div>
 
-<footer class="text-center py-3"><small>&copy; 2026 Cinexus - Todos los derechos reservados</small></footer>
+<footer class="text-center py-3"><small>&copy; 2026 Cinexus - All rights reserved</small></footer>
 
 <script>
 const usuario = JSON.parse(localStorage.getItem('user'));
 if (!usuario) window.location.href = 'login-register.html';
 document.getElementById('nombreUsuario').textContent = usuario.name;
 
-//Datos hardcodeados
+// Hardcoded movies
 const peliculas = {
     "Project Hail Mary": {
-        genero: "Ciencia ficción", anio: "2026",
+        genero: "Sci-fi", anio: "2026",
         img: "https://m.media-amazon.com/images/M/MV5BNTkwNzJiYTctNzI3NC00NjE1LTlhYjktY2Q5MTdmMWFmNzcxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        desc: "Un astronauta solitario debe salvar la Tierra en esta aventura de ciencia ficción basada en la novela de Andy Weir."
+        desc: "A lone astronaut must save the Earth in this sci-fi adventure based on Andy Weir's novel."
     },
     "Drama": {
         genero: "Drama", anio: "2026",
         img: "https://m.media-amazon.com/images/M/MV5BMTcwOGZhYmItYTg3ZS00NjUwLWJiMmQtMjU5YjEwYWY0NmNkXkEyXkFqcGc@._V1_.jpg",
-        desc: "Un poderoso drama sobre las complejidades de las relaciones humanas."
+        desc: "A powerful drama about the complexities of human relationships."
     },
     "Mercy": {
         genero: "Thriller", anio: "2026",
         img: "https://www.sonypictures.co.uk/sites/unitedkingdom/files/2025-12/2717_SP_MERCY_Poster_1sheet_Dated_1mb.jpg",
-        desc: "Un thriller tenso que te mantiene al borde del asiento de principio a fin."
+        desc: "A tense thriller that keeps you on the edge of your seat from start to finish."
     },
     "Zootopia 2": {
-        genero: "Comedia", anio: "2025",
+        genero: "Comedy", anio: "2025",
         img: "https://m.media-amazon.com/images/M/MV5BYjg1Mjc3MjQtMTZjNy00YWVlLWFhMWEtMWI3ZTgxYjJmNmRlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        desc: "Judy y Nick regresan en una nueva aventura por la metrópolis animal de Zootopia."
+        desc: "Judy and Nick are back in a brand-new adventure through the animal metropolis of Zootopia."
     },
+    "The Shawshank Redemption": {
+        genero: "Drama", anio: "1994",
+        img: "https://m.media-amazon.com/images/M/MV5BMDAyY2FhYjctNDc5OS00MDNlLThiMGUtY2UxYWVkNGY2ZjljXkEyXkFqcGc@._V1_.jpg",
+        desc: "Two imprisoned men bond over the years, finding solace and redemption."
+    },
+    "The Dark Knight": {
+        genero: "Action", anio: "2008",
+        img: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_.jpg",
+        desc: "Batman faces the Joker in what is considered the greatest superhero movie ever made."
+    }
 };
 
-//Reseñas hardcodeadas
+// Hardcoded reviews
 const resenas = {
     "Project Hail Mary": [
-        { usuario: "Carlos", estrellas: 5, texto: "mi novia y yo la vimos y lloramos los dos, no se la pierdan", fecha: "3/1/2025" },
-        { usuario: "Maria",  estrellas: 4, texto: "buenísima, aunque el final me dejó con preguntas", fecha: "5/1/2025" }
+        { usuario: "Carlos", estrellas: 5, texto: "My girlfriend and I watched it and we both cried, don't miss it.", fecha: "3/1/2025" },
+        { usuario: "Maria",  estrellas: 4, texto: "Amazing, though the ending left me with questions.", fecha: "5/1/2025" }
     ],
     "Zootopia 2": [
-        { usuario: "Maria",  estrellas: 3, texto: "La primera era mejor pero igual nos reímos bastante.", fecha: "20/4/2025" }
+        { usuario: "Maria",  estrellas: 3, texto: "The first one was better but we still laughed a lot.", fecha: "20/4/2025" }
+    ],
+    "The Dark Knight": [
+        { usuario: "Luis",   estrellas: 5, texto: "Put it on as background during dinner with my girlfriend and we ended up watching the whole thing.", fecha: "11/3/2024" },
+        { usuario: "Carlos", estrellas: 5, texto: "The Joker really gets on my nerves, which means the acting was incredible.", fecha: "12/3/2024" }
+    ],
+    "The Shawshank Redemption": [
+        { usuario: "Luis",   estrellas: 5, texto: "My girlfriend and I watched it on a Sunday and didn't say a word for two hours, it was that good.", fecha: "11/3/2024" }
     ]
 };
 
 const tituloPelicula = decodeURIComponent(new URLSearchParams(location.search).get('movie') || 'Project Hail Mary');
 const pelicula = peliculas[tituloPelicula] || peliculas["Project Hail Mary"];
 
-document.getElementById('titulo').textContent = tituloPelicula;
-document.getElementById('meta').textContent = pelicula.genero + ' | ' + pelicula.anio;
+document.getElementById('titulo').textContent      = tituloPelicula;
+document.getElementById('meta').textContent        = pelicula.genero + ' | ' + pelicula.anio;
 document.getElementById('descripcion').textContent = pelicula.desc;
-document.getElementById('poster').src = pelicula.img;
+document.getElementById('poster').src              = pelicula.img;
 
-//Selector de estrellas
+// Star selector
 let estrellasSeleccionadas = 0;
 
 document.querySelectorAll('.estrella-btn').forEach(s => {
     s.addEventListener('mouseover', () => resaltarEstrellas(+s.dataset.v));
-    s.addEventListener('mouseout', () => resaltarEstrellas(estrellasSeleccionadas));
-    s.addEventListener('click', () => { estrellasSeleccionadas = +s.dataset.v; resaltarEstrellas(estrellasSeleccionadas); });
+    s.addEventListener('mouseout',  () => resaltarEstrellas(estrellasSeleccionadas));
+    s.addEventListener('click',     () => { estrellasSeleccionadas = +s.dataset.v; resaltarEstrellas(estrellasSeleccionadas); });
 });
 
 function resaltarEstrellas(n) {
@@ -136,7 +158,7 @@ function resaltarEstrellas(n) {
 
 function publicarResena() {
     const texto = document.getElementById('textoResena').value.trim();
-    if (!estrellasSeleccionadas || !texto) { alert('Selecciona una calificación y escribe tu reseña.'); return; }
+    if (!estrellasSeleccionadas || !texto) { alert('Select a rating and write a review.'); return; }
     if (!resenas[tituloPelicula]) resenas[tituloPelicula] = [];
     resenas[tituloPelicula].unshift({ usuario: usuario.name, estrellas: estrellasSeleccionadas, texto, fecha: new Date().toLocaleDateString() });
     document.getElementById('textoResena').value = '';
@@ -148,7 +170,7 @@ function publicarResena() {
 function mostrarResenas() {
     const lista = resenas[tituloPelicula] || [];
     const contenedor = document.getElementById('contenedorResenas');
-    if (!lista.length) { contenedor.innerHTML = '<p class="text-secondary">Sin reseñas aún.</p>'; return; }
+    if (!lista.length) { contenedor.innerHTML = '<p class="text-secondary">No reviews yet.</p>'; return; }
     contenedor.innerHTML = lista.map(r => `
         <div class="tarjeta-resena">
             <div class="d-flex justify-content-between">
@@ -164,7 +186,7 @@ function mostrarResenas() {
 function agregarALista() {
     const select = document.getElementById('selectLista');
     if (!select.value) return;
-    document.getElementById('mensajeLista').textContent = '"' + tituloPelicula + '" agregada a "' + select.selectedOptions[0].text + '"';
+    document.getElementById('mensajeLista').textContent = '"' + tituloPelicula + '" added to "' + select.selectedOptions[0].text + '"';
     setTimeout(() => document.getElementById('mensajeLista').textContent = '', 3000);
 }
 

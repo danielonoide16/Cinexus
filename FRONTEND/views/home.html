@@ -158,7 +158,7 @@ function renderMovies(){
     filtered.forEach(m => {
         container.innerHTML += `
         <div class="col-md-3">
-            <div class="movie-card">
+            <div class="movie-card" style="cursor:pointer" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m.title}')">
                 <img src="${m.img}" class="w-100">
                 <div class="p-2 text-white">
                     <strong>${m.title}</strong><br>

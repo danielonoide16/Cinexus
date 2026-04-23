@@ -239,6 +239,7 @@
             <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
             <div>
                 <span id="userName" class="me-3 user-link" onclick="goToProfile()" title="View profile">Jhon Doe</span>
+                <a href="friends.html" class="btn btn-outline-secondary me-2">Friends</a>
                 <button class="btn btn-outline-light" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -340,8 +341,8 @@
                             </div>
                         </div>
 
-                        <div class="lists-content" id="listContent">
-                            <p>Select a list to view its content</p>
+                        <div class="lists-content p-4" id="listContent">
+                            <p class="text-secondary">Select a list to view its content</p>
                         </div>
 
                     </div>
@@ -462,22 +463,17 @@
                 }
             }
             function selectList(element, listId) {
-                const cards = document.querySelectorAll(".list-card");
-                cards.forEach(c => c.classList.remove("active"));
+                document.querySelectorAll(".list-card").forEach(c => c.classList.remove("active"));
                 element.classList.add("active");
-
-                const content = document.getElementById("listContent");
-
                 const movies = listData[listId] || [];
-
-                content.innerHTML = `
-                    <div>
-                        <h5>${element.querySelector("h5").innerText}</h5>
-                        <ul>
-                            ${movies.map(m => `<li>${m}</li>`).join("")}
-                        </ul>
-                    </div>
-                `;
+                document.getElementById("listContent").innerHTML = `
+                    <div class="p-3 w-100">
+                        <h5 class="text-white mb-3">${element.querySelector("h5").innerText}</h5>
+                        ${movies.map(m => `
+                        <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded" style="background:#12121a;border:1px solid #2e2e3a;cursor:pointer" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m}')">
+                            <span class="text-white">${m}</span>
+                        </div>`).join('')}
+                    </div>`;
             }
             //placeholder functions for list actions
             function createNewList() {

@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <title>User Profile</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <!-- Bootstrap CSS v5.3.8 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            body {
+                background: linear-gradient(135deg, #0b0b0f, #2a0f4a);
+                min-height: 100vh;
+            }
+            main.container {
+                max-width: 900px;
+            }
+            .card {
+                background-color: #12121a;
+                border: 1px solid #2e2e3a;
+                border-radius: 15px;
+                padding: 20px;
+            }
+            h2 {
+                font-size: 1.4rem;
+                font-weight: 600;
+            }
+            .btn-primary {
+                background-color: #6f42c1;
+                border: none;
+            }
+            .btn-primary:hover {
+                background-color: #5a35a0;
+            }
+            .avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background-color: #6f42c1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                color: #fff;
+                margin-right: 15px;
+            }
+            .tabs {
+                display: flex;
+                background: #1a1a24;
+                border-radius: 10px;
+                padding: 5px;
+                margin-bottom: 20px;
+            }
+            .tabs li {
+                flex: 1;
+                text-align: center;
+                padding: 8px;
+                border-radius: 8px;
+                cursor: pointer;
+                color: #aaa;
+                transition: 0.2s;
+            }
+            .tabs .active {
+                background: #2a2a35;
+                color: #fff;
+                font-weight: 500;
+            }
+            .review {
+                background: #1a1a24;
+                padding: 15px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+                border: 1px solid #2a2a35;
+                cursor: pointer;
+            }
+            .review:hover {
+                border-color: #6f42c1;
+                box-shadow: 0 0 12px rgba(111, 66, 193, 0.4);
+            }
+            .review h4 {
+                margin-bottom: 5px;
+                font-size: 1.1rem;
+            }
+            .review:active {
+                transform: scale(0.98);
+            }
+            .review p {
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cfcfcf;
+            }
+            .toggle-link {
+                cursor: pointer;
+                color: #9b7bff;
+                font-size: 0.85rem;
+            }
+            #personal-info .card {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .details p {
+                margin: 0;
+                font-size: 0.9rem;
+            }
+            .stars {
+                color: #ffc107;
+                font-size: 1rem;
+                letter-spacing: 2px;
+                text-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+            }
+            .review-meta {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                font-size: 0.85rem;
+            }
+
+            .date {
+                color: #b8b6b6b4;
+            }
+            .user-link {
+                display: inline-flex;
+                align-items: center;
+                padding: 8px 14px;
+                border-radius: 999px;
+                cursor: pointer;
+                transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .user-link:hover {
+                background-color: rgba(111, 66, 193, 0.2);
+                color: #fff;
+                box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
+                transform: translateY(-1px);
+            }
+            .user-link:active {
+                transform: translateY(0);
+            }
+            .home-link {
+                display: inline-flex;
+                align-items: center;
+                padding: 8px 14px;
+                border-radius: 999px;
+                cursor: pointer;
+                transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .home-link:hover {
+                background-color: rgba(111, 66, 193, 0.2);
+                color: #fff;
+                box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
+                transform: translateY(-1px);
+            }
+            .home-link:active {
+                transform: translateY(0);
+            }
+            .lists-layout {
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                gap: 20px;
+            }
+            .lists-sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .list-card {
+                background: #1a1a24;
+                padding: 15px;
+                border-radius: 12px;
+                border: 1px solid #2a2a35;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+            .list-card:hover {
+                border-color: #6f42c1;
+                box-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
+            }
+
+            .list-card.active {
+                border-color: #6f42c1;
+                background: rgba(111, 66, 193, 0.15);
+            }
+
+            .list-card h5 {
+                margin-bottom: 5px;
+                font-size: 0.95rem;
+            }
+
+            .list-card p {
+                font-size: 0.8rem;
+                color: #aaa;
+            }
+            .badge {
+                font-size: 0.7rem;
+                background: #2a2a35;
+            }
+            .lists-content {
+                background: #1a1a24;
+                border-radius: 12px;
+                border: 1px solid #2a2a35;
+                display: flex;
+                align-items: flex-start;
+                justify-content: flex-start;
+                color: #777;
+                min-height: 420px;
+                padding: 20px;
+            }
+            .list-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .list-actions span {
+                pointer-events: auto;
+                margin-left: 8px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                opacity: 0.7;
+                transition: 0.2s;
+            }
+
+            .list-actions span:hover {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            .list-detail {
+                width: 100%;
+            }
+            .list-detail-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 18px;
+            }
+            .list-detail-header h5 {
+                margin-bottom: 6px;
+                font-size: 1.2rem;
+            }
+            .list-detail-header p {
+                margin: 0;
+                color: #b8b8c5;
+                font-size: 0.92rem;
+            }
+            .list-meta-chip {
+                padding: 8px 12px;
+                border-radius: 999px;
+                background: rgba(111, 66, 193, 0.15);
+                border: 1px solid rgba(155, 123, 255, 0.25);
+                color: #d9ccff;
+                font-size: 0.82rem;
+                white-space: nowrap;
+            }
+            .movie-grid {
+                display: grid;
+                gap: 18px;
+            }
+            .movie-highlight-card {
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 18px;
+                padding: 16px;
+                border-radius: 16px;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(111, 66, 193, 0.08));
+                border: 1px solid #302a43;
+                transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+                cursor: pointer;
+            }
+            .movie-highlight-card:hover {
+                transform: translateY(-2px);
+                border-color: rgba(155, 123, 255, 0.45);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+            }
+            .movie-poster {
+                width: 100%;
+                aspect-ratio: 2 / 3;
+                object-fit: cover;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: #12121a;
+            }
+            .movie-info {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .movie-title-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .movie-title-row h6 {
+                margin: 0;
+                font-size: 1.15rem;
+            }
+            .movie-subtitle {
+                color: #b8b8c5;
+                font-size: 0.88rem;
+            }
+            .movie-score {
+                min-width: 92px;
+                text-align: center;
+                padding: 10px 12px;
+                border-radius: 14px;
+                background: rgba(255, 193, 7, 0.08);
+                border: 1px solid rgba(255, 193, 7, 0.22);
+                color: #ffe7a0;
+            }
+            .movie-score strong {
+                display: block;
+                font-size: 1.05rem;
+                line-height: 1.1;
+            }
+            .movie-score span {
+                font-size: 0.75rem;
+                color: #e7d9a3;
+            }
+            .movie-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .movie-tags span {
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: #222231;
+                color: #dfdfeb;
+                font-size: 0.78rem;
+            }
+            .movie-details {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px 18px;
+                font-size: 0.88rem;
+            }
+            .movie-details strong {
+                color: #ffffff;
+            }
+            .movie-plot {
+                margin: 0;
+                color: #d6d6dd;
+                line-height: 1.5;
+                font-size: 0.9rem;
+            }
+            .simple-list {
+                width: 100%;
+            }
+            .simple-list ul {
+                margin: 18px 0 0;
+                padding-left: 18px;
+            }
+            .simple-list li {
+                margin-bottom: 10px;
+                color: #d8d8de;
+            }
+            @media (max-width: 768px) {
+                .lists-layout {
+                    grid-template-columns: 1fr;
+                }
+                .movie-highlight-card {
+                    grid-template-columns: 1fr;
+                }
+                .movie-poster {
+                    max-width: 180px;
+                    margin: 0 auto;
+                }
+                .movie-title-row,
+                .list-detail-header {
+                    flex-direction: column;
+                }
+                .movie-details {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-dark bg-dark px-4">
+            <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
+            <div>
+                <span id="userName" class="me-3 user-link" onclick="goToProfile()" title="View profile">Jhon Doe</span>
+                <a href="friends.html" class="btn btn-outline-secondary me-2">Friends</a>
+                <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            <!-- Personal Information -->
+            <section id="personal-info" class="mb-4">
+                <div class="card d-flex flex-row align-items-center">
+                    <div class="avatar">JD</div>
+                    <div class="details flex-grow-1">
+                        <p><strong>Name:</strong> <span id="profileName">Jhon Doe</span></p>
+                        <p><strong>Email:</strong> <span id="profileEmail">jhon.doe@example.com</span></p>
+                        <p><strong>Who I am?:</strong> <span id="profileBio">I am a film enthusiast who loves to watch and review movies.</span></p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit</button>
+                </div>
+            </section>
+
+
+        <!-- My Activity -->
+        <section id="my-activity">
+            <div class="card p-3">
+                <h2 class="mb-3">My Activity</h2>
+                <ul class="tabs list-unstyled">
+                    <li class="active" onclick="showTab('reviews')">My Reviews (2)</li>
+                    <li onclick="showTab('lists')">My Lists (3)</li>
+                </ul>
+
+                <!-- My Reviews -->
+                <div id="reviews-section" class="tab-content">
+                    <div class="reviews">
+                        <article class="review" onclick="goToMovie('shawshank')">
+                            <h4>The Shawshank Redemption</h4>
+                            <div class="review-meta">
+                                <span class="stars">★★★★★</span>
+                                <span class="date">11/3/2024</span>
+                            </div>
+                            <p>
+                                An absolute masterpiece. One of the best films ever made. 
+                                The story is compelling, the acting is superb, and the message is timeless.
+                            </p>
+                        </article>
+
+                        <article class="review" onclick="goToMovie('The Dark Knight')">
+                            <h4>The Dark Knight</h4>
+                            <div class="review-meta">
+                                <span class="stars">★★★★★</span>
+                                <span class="date">11/3/2024</span>
+                            </div>
+                            <p>
+                                Heath Ledger's performance as the Joker is legendary. 
+                                The best superhero movie ever made.
+                            </p>
+                        </article>
+                    </div>
+                </div>
+                <!-- My Lists -->
+                <div id="lists-section" class="tab-content d-none">
+                    <div class="d-flex justify-content-end mb-2">
+                        <button class="btn btn-primary btn-sm" onclick="createNewList()">+ New List</button>
+                    </div>
+                    <div class="lists-layout">
+
+                        <div class="lists-sidebar" id="listsContainer">
+                            <div class="list-card active" onclick="selectList(this, 'classics')">
+                                <div class="list-header">
+                                    <h5>My Favorite Classics</h5>
+                                    <div class="list-actions">
+                                        <span onclick="editList(event)">✏️</span>
+                                        <span onclick="deleteList(event)">🗑️</span>
+                                    </div>
+                                </div>
+                                <p>Timeless movies that I can watch over and over again</p>
+                                <span class="badge">3 movies</span>
+                            </div>
+
+                            <div class="list-card" onclick="selectList(this, 'nolan')">
+                                <div class="list-header">
+                                    <h5>Nolan Collection</h5>
+                                    <div class="list-actions">
+                                        <span onclick="editList(event)">✏️</span>
+                                        <span onclick="deleteList(event)">🗑️</span>
+                                    </div>
+                                </div>
+                                <p>All my favorite Christopher Nolan films</p>
+                                <span class="badge">3 movies</span>
+                            </div>
+
+                            <div class="list-card" onclick="selectList(this, 'scifi')">
+                                <div class="list-header">
+                                    <h5>Must Watch Sci-Fi</h5>
+                                    <div class="list-actions">
+                                        <span onclick="editList(event)">✏️</span>
+                                        <span onclick="deleteList(event)">🗑️</span>
+                                    </div>
+                                </div>
+                                <p>Essential science fiction movies</p>
+                                <span class="badge">3 movies</span>
+                            </div>
+                        </div>
+
+                        <div class="lists-content p-4" id="listContent">
+                            <p class="text-secondary">Select a list to view its content</p>
+                        </div>
+
+                    </div>
+                </div>     
+            </div>
+        </section>
+        
+        </main>
+        
+        
+        <div
+            class="modal fade"
+            id="editProfileModal"
+            tabindex="-1"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            
+            role="dialog"
+            aria-labelledby="modalTitleId"
+            aria-hidden="true"
+        >
+            <div
+                class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+                role="document"
+            >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitleId">
+                            Edit Profile
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="profileForm">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" id="inputName" value="Jhon Doe">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="inputEmail" value="jhon.doe@example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Bio</label>
+                                <textarea class="form-control" id="inputBio" rows="3">I am a film enthusiast who loves to watch and review movies.</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="text-center py-3">
+            <small>&copy; 2026 Cinexus - All rights reserved</small>
+        </footer>
+        <!-- Bootstrap JavaScript Bundle (includes Popper) -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            //harcoded data for lists - in a real app this would come from the backend
+            
+            const listData = {
+                classics: {
+                    description: "Timeless movies that I can watch over and over again",
+                    movies: [
+                        {
+                            title: "The Godfather",
+                            year: "1972",
+                            rated: "R",
+                            runtime: "175 min",
+                            genre: "Crime, Drama",
+                            director: "Francis Ford Coppola",
+                            plot: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY562_CR8,0,380,562_.jpg",
+                            imdbRating: "9.2",
+                            awards: "Won 3 Oscars",
+                            boxOffice: "$136,381,073"
+                        },
+                        {
+                            title: "Casablanca",
+                            year: "1943",
+                            rated: "PG",
+                            runtime: "102 min",
+                            genre: "Drama, Romance, War",
+                            director: "Michael Curtiz",
+                            plot: "A cynical expatriate American cafe owner struggles to decide whether or not to help his former lover and her fugitive husband escape the Nazis in French Morocco.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BNWEzN2U1YTYtYTQyMS00NTVkLWE2NGQtZWFlMmM0MDNjMmRiXkEyXkFqcGc@._V1_QL75_UX380_CR0,5,380,562_.jpg",
+                            imdbRating: "8.5",
+                            awards: "Won 3 Oscars",
+                            boxOffice: "$4,219,709"
+                        },
+                        {
+                            title: "Citizen Kane",
+                            year: "1941",
+                            rated: "PG",
+                            runtime: "119 min",
+                            genre: "Drama, Mystery",
+                            director: "Orson Welles",
+                            plot: "Following the death of publishing tycoon Charles Foster Kane, reporters scramble to uncover the meaning of his final utterance: 'Rosebud.'",
+                            poster: "https://m.media-amazon.com/images/M/MV5BYjk1ZDJlMmUtOWQ0Zi00MDM5LTk1OGYtODczNjFmMGYwZGVkXkEyXkFqcGc@._V1_SX300.jpg",
+                            imdbRating: "8.2",
+                            awards: "Won 1 Oscar",
+                            boxOffice: "$1,627,530"
+                        }
+                    ]
+                },
+
+                nolan: {
+                    description: "All my favorite Christopher Nolan films",
+                    movies: [
+                        {
+                            title: "Inception",
+                            year: "2010",
+                            rated: "PG-13",
+                            runtime: "148 min",
+                            genre: "Action, Adventure, Sci-Fi",
+                            director: "Christopher Nolan",
+                            plot: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a CEO's mind.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+                            imdbRating: "8.8",
+                            awards: "Won 4 Oscars",
+                            boxOffice: "$292,587,330"
+                        },
+                        {
+                            title: "Interstellar",
+                            year: "2014",
+                            rated: "PG-13",
+                            runtime: "169 min",
+                            genre: "Adventure, Drama, Sci-Fi",
+                            director: "Christopher Nolan",
+                            plot: "A team travels through a wormhole in space in an attempt to ensure humanity's survival.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+                            imdbRating: "8.7",
+                            awards: "Won 1 Oscar",
+                            boxOffice: "$203,227,580"
+                        },
+                        {
+                            title: "The Dark Knight",
+                            year: "2008",
+                            rated: "PG-13",
+                            runtime: "152 min",
+                            genre: "Action, Crime, Drama",
+                            director: "Christopher Nolan",
+                            plot: "Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+                            imdbRating: "9.1",
+                            awards: "Won 2 Oscars",
+                            boxOffice: "$534,987,076"
+                        }
+                    ]
+                },
+
+                scifi: {
+                    description: "Must Watch Sci-Fi",
+                    movies: [
+                        {
+                            title: "Blade Runner",
+                            year: "1982",
+                            rated: "R",
+                            runtime: "117 min",
+                            genre: "Action, Drama, Sci-Fi",
+                            director: "Ridley Scott",
+                            plot: "A blade runner must hunt down replicants who have returned to Earth.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BOWQ4YTBmNTQtMDYxMC00NGFjLTkwOGQtNzdhNmY1Nzc1MzUxXkEyXkFqcGc@._V1_SX300.jpg",
+                            imdbRating: "8.1",
+                            awards: "Nominated for 2 Oscars",
+                            boxOffice: "$32,914,489"
+                        },
+                        {
+                            title: "The Matrix",
+                            year: "1999",
+                            rated: "R",
+                            runtime: "136 min",
+                            genre: "Action, Sci-Fi",
+                            director: "Lana Wachowski, Lilly Wachowski",
+                            plot: "A hacker discovers reality is a simulation and joins a rebellion.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_SX300.jpg",
+                            imdbRating: "8.7",
+                            awards: "Won 4 Oscars",
+                            boxOffice: "$177,559,005"
+                        },
+                        {
+                            title: "Arrival",
+                            year: "2016",
+                            rated: "PG-13",
+                            runtime: "116 min",
+                            genre: "Drama, Mystery, Sci-Fi",
+                            director: "Denis Villeneuve",
+                            plot: "A linguist works to communicate with extraterrestrials before global war breaks out.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BMTExMzU0ODcxNDheQTJeQWpwZ15BbWU4MDE1OTI4MzAy._V1_SX300.jpg",
+                            imdbRating: "7.9",
+                            awards: "Won 1 Oscar",
+                            boxOffice: "$100,546,139"
+                        }
+                    ]
+                }
+            };
+
+
+            function goToMovie(movieID) {
+                window.location.href = 'movie_details.html'; // Pass the movie ID to the details page in the future
+            }
+
+            function goToProfile() {
+                window.location.href = 'user_profile.html';
+            }
+
+            function logout() {
+                localStorage.removeItem('user');
+                window.location.href = 'login-register.html';
+            }
+            function goToHome(){
+                window.location.href = 'home.html';
+            }
+            function showTab(tab) {
+                const reviews = document.getElementById("reviews-section");
+                const lists = document.getElementById("lists-section");
+                const tabs = document.querySelectorAll(".tabs li");
+
+                tabs.forEach(t => t.classList.remove("active"));
+
+                if (tab === "reviews") {
+                    reviews.classList.remove("d-none");
+                    lists.classList.add("d-none");
+                    tabs[0].classList.add("active");
+                } else {
+                    reviews.classList.add("d-none");
+                    lists.classList.remove("d-none");
+                    tabs[1].classList.add("active");
+                }
+            }
+            function selectList(element, listId) {
+                document.querySelectorAll(".list-card").forEach(c => c.classList.remove("active"));
+                element.classList.add("active");
+
+                const content = document.getElementById("listContent");
+                const title = element.querySelector("h5").innerText;
+                const description = element.querySelector("p").innerText;
+                const badge = element.querySelector(".badge").innerText;
+                const listEntry = listData[listId];
+
+                if (listEntry?.movies?.length) {
+                    content.innerHTML = `
+                        <div class="list-detail">
+                            <div class="list-detail-header">
+                                <div>
+                                    <h5>${title}</h5>
+                                    <p>${listEntry.description || description}</p>
+                                </div>
+                                <span class="list-meta-chip">${badge}</span>
+                            </div>
+                            <div class="movie-grid">
+                                ${listEntry.movies.map(movie => `
+                                    <article class="movie-highlight-card" onclick="goToMovie('${movie.title.replace(/'/g, "\\'")}')">
+                                        <img class="movie-poster" src="${movie.poster}" alt="Poster of ${movie.title}">
+                                        <div class="movie-info">
+                                            <div class="movie-title-row">
+                                                <div>
+                                                    <h6>${movie.title}</h6>
+                                                    <div class="movie-subtitle">${movie.year} • ${movie.rated} • ${movie.runtime}</div>
+                                                </div>
+                                                <div class="movie-score">
+                                                    <strong>${movie.imdbRating}/10</strong>
+                                                    <span>IMDb</span>
+                                                </div>
+                                            </div>
+                                            <div class="movie-tags">
+                                                <span>${movie.genre}</span>
+                                                <span>${movie.awards}</span>
+                                                <span>Box office ${movie.boxOffice}</span>
+                                            </div>
+                                            <div class="movie-details">
+                                                <div><strong>Director:</strong> ${movie.director}</div>
+                                                <div><strong>Audience:</strong> ${movie.rated}</div>
+                                            </div>
+                                            <p class="movie-plot">${movie.plot}</p>
+                                        </div>
+                                    </article>
+                                `).join("")}
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const movies = listEntry || [];
+                content.innerHTML = `
+                    <div class="simple-list">
+                        <h5>${title}</h5>
+                        <p>${description}</p>
+                        <ul>
+                            ${movies.map(m => `<li>${m}</li>`).join("")}
+                        </ul>
+                    </div>
+                `;
+            }
+            document.addEventListener("DOMContentLoaded", () => {
+                const defaultList = document.querySelector(".list-card.active");
+                if (defaultList) {
+                    selectList(defaultList, "classics");
+                }
+            });
+
+            //placeholder functions for list actions
+            function createNewList() {
+                alert("Create new list (fake)");
+            }
+            function editList(event) {
+                event.stopPropagation();
+                alert("Edit list (fake)");
+            }
+            function deleteList(event) {
+                event.stopPropagation();
+                alert("Delete list (fake)");
+            }
+        </script>
+    </body>
+</html>

@@ -29,14 +29,48 @@
             background-color: #6f42c1;
             border: none;
         }
+        .user-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+        }
+        .user-link:hover {
+            background-color: rgba(111, 66, 193, 0.2);
+            color: #ffffff;
+            box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
+            transform: translateY(-1px);
+        }
+        .user-link:active {
+            transform: translateY(0);
+        }
+        .home-link {
+                display: inline-flex;
+                align-items: center;
+                padding: 8px 14px;
+                border-radius: 999px;
+                cursor: pointer;
+                transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .home-link:hover {
+                background-color: rgba(111, 66, 193, 0.2);
+                color: #fff;
+                box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
+                transform: translateY(-1px);
+            }
+            .home-link:active {
+                transform: translateY(0);
+            }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4">
-    <span class="navbar-brand">🎬 Cinexus</span>
+    <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
     <div>
-        <span id="userName" class="me-3"></span>
+        <span id="userName" class="me-3 user-link" onclick="goToProfile()" title="View profile"></span>
         <button class="btn btn-outline-light" onclick="logout()">Logout</button>
     </div>
 </nav>
@@ -124,7 +158,7 @@ function renderMovies(){
     filtered.forEach(m => {
         container.innerHTML += `
         <div class="col-md-3">
-            <div class="movie-card">
+            <div class="movie-card" style="cursor:pointer" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m.title}')">
                 <img src="${m.img}" class="w-100">
                 <div class="p-2 text-white">
                     <strong>${m.title}</strong><br>
@@ -138,12 +172,23 @@ function renderMovies(){
 
 // INIT
 renderMovies();
+function goToProfile(){
+    window.location.href = 'user_profile.html';
+}
 
 function logout(){
     localStorage.removeItem('user');
     window.location.href = 'login-register.html';
 }
+
+function goToHome(){
+    window.location.href = 'home.html';
+}
+
 </script>
 
 </body>
+<footer class="text-center py-3">
+    <small>&copy; 2026 Cinexus - All rights reserved</small>
+</footer>
 </html>

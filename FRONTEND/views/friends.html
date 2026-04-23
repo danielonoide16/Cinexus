@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <title>Cinexus - Friends</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #0b0b0f; }
+        .btn-morado { background-color: #6f42c1; border: none; }
+        .btn-morado:hover { background-color: #5a35a0; }
+        .nav-link { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: background-color .2s, transform .2s; }
+        .nav-link:hover { background-color: rgba(111,66,193,.2); color: #fff; transform: translateY(-1px); }
+        .tarjeta-usuario { background: #1a1a24; border: 1px solid #2a2a35; border-radius: 12px; padding: 15px; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; background-color: #6f42c1; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+        .tabs { display: flex; background: #1a1a24; border-radius: 10px; padding: 5px; margin-bottom: 20px; list-style: none; }
+        .tabs li { flex: 1; text-align: center; padding: 8px; border-radius: 8px; cursor: pointer; color: #aaa; transition: .2s; }
+        .tabs .active { background: #2a2a35; color: #fff; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand nav-link" onclick="window.location.href='home.html'">Cinexus</span>
+    <div>
+        <span id="nombreUsuario" class="me-3 nav-link" onclick="window.location.href='user_profile.html'"></span>
+        <button class="btn btn-outline-light" onclick="cerrarSesion()">Logout</button>
+    </div>
+</nav>
+
+<div class="container py-5" style="max-width:700px">
+
+    <h2 class="text-white mb-4">Friends</h2>
+
+    <ul class="tabs">
+        <li class="active" onclick="mostrarTab('buscar')">Find Users</li>
+        <li onclick="mostrarTab('solicitudes')">Requests <span id="contadorSolicitudes" class="badge ms-1" style="background:#6f42c1"></span></li>
+        <li onclick="mostrarTab('amigos')">My Friends</li>
+    </ul>
+
+    <div id="tab-buscar">
+        <div class="d-flex gap-2 mb-4">
+            <input id="inputBusqueda" type="text" class="form-control" placeholder="Search by name...">
+            <button class="btn btn-morado" onclick="buscarUsuarios()">Search</button>
+        </div>
+        <div id="resultadosBusqueda" class="d-flex flex-column gap-3"></div>
+    </div>
+
+    <div id="tab-solicitudes" class="d-none">
+        <div id="listaSolicitudes" class="d-flex flex-column gap-3"></div>
+    </div>
+
+    <div id="tab-amigos" class="d-none">
+        <div id="listaAmigos" class="d-flex flex-column gap-3"></div>
+    </div>
+
+</div>
+
+<footer class="text-center py-3"><small>&copy; 2026 Cinexus - All rights reserved</small></footer>
+
+<script>
+const usuario = JSON.parse(localStorage.getItem('user'));
+if (!usuario) window.location.href = 'login-register.html';
+document.getElementById('nombreUsuario').textContent = usuario.name;
+
+//Datos hardcodeados
+const todosLosUsuarios = [
+    { nombre: "Carlos Ruiz",  iniciales: "CR", bio: "Fanático del cine de acción" },
+    { nombre: "Maria Lopez",  iniciales: "ML", bio: "Le encantan las películas de terror" },
+    { nombre: "Luis Torres",  iniciales: "LT", bio: "Solo ve comedias" },
+];
+
+let solicitudesEnviadas  = [];
+let solicitudesRecibidas = ["Carlos Ruiz"]; //solicitud entrante de ejemplo
+let amigos               = [];
+
+function tarjetaUsuario(u, boton) {
+    return `
+    <div class="tarjeta-usuario d-flex align-items-center gap-3">
+        <div class="avatar">${u.iniciales}</div>
+        <div class="flex-grow-1">
+            <strong class="text-white">${u.nombre}</strong>
+            <p class="text-secondary mb-0" style="font-size:.85rem">${u.bio}</p>
+        </div>
+        ${boton}
+    </div>`;
+}
+
+function buscarUsuarios() {
+    const busqueda = document.getElementById('inputBusqueda').value.toLowerCase().trim();
+    const resultados = todosLosUsuarios.filter(u => u.nombre.toLowerCase().includes(busqueda));
+    const contenedor = document.getElementById('resultadosBusqueda');
+
+    if (!resultados.length) { contenedor.innerHTML = '<p class="text-secondary">No users found.</p>'; return; }
+
+    contenedor.innerHTML = resultados.map(u => {
+        let boton = amigos.includes(u.nombre)
+            ? `<span class="badge bg-success">Amigos</span>`
+            : solicitudesEnviadas.includes(u.nombre)
+                ? `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`
+                : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.nombre}')">Add Friend</button>`;
+        return tarjetaUsuario(u, boton);
+    }).join('');
+}
+
+function enviarSolicitud(nombre) {
+    solicitudesEnviadas.push(nombre);
+    buscarUsuarios();
+}
+
+function mostrarSolicitudes() {
+    const contenedor = document.getElementById('listaSolicitudes');
+    if (!solicitudesRecibidas.length) { contenedor.innerHTML = '<p class="text-secondary">No pending requests.</p>'; return; }
+
+    contenedor.innerHTML = solicitudesRecibidas.map(nombre => {
+        const u = todosLosUsuarios.find(x => x.nombre === nombre);
+        const boton = `
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-morado" onclick="aceptarSolicitud('${nombre}')">Accept</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="rechazarSolicitud('${nombre}')">Decline</button>
+            </div>`;
+        return tarjetaUsuario(u, boton);
+    }).join('');
+
+    document.getElementById('contadorSolicitudes').textContent = solicitudesRecibidas.length;
+}
+
+function aceptarSolicitud(nombre) {
+    solicitudesRecibidas = solicitudesRecibidas.filter(n => n !== nombre);
+    amigos.push(nombre);
+    mostrarSolicitudes();
+    mostrarAmigos();
+    document.getElementById('contadorSolicitudes').textContent = solicitudesRecibidas.length || '';
+}
+
+function rechazarSolicitud(nombre) {
+    solicitudesRecibidas = solicitudesRecibidas.filter(n => n !== nombre);
+    mostrarSolicitudes();
+    document.getElementById('contadorSolicitudes').textContent = solicitudesRecibidas.length || '';
+}
+
+function mostrarAmigos() {
+    const contenedor = document.getElementById('listaAmigos');
+    if (!amigos.length) { contenedor.innerHTML = '<p class="text-secondary">No friends yet.</p>'; return; }
+    contenedor.innerHTML = amigos.map(nombre => {
+        const u = todosLosUsuarios.find(x => x.nombre === nombre);
+        return tarjetaUsuario(u, `<span class="badge bg-success">Amigos</span>`);
+    }).join('');
+}
+
+function mostrarTab(tab) {
+    ['buscar', 'solicitudes', 'amigos'].forEach(t =>
+        document.getElementById('tab-' + t).classList.toggle('d-none', t !== tab)
+    );
+    document.querySelectorAll('.tabs li').forEach((li, i) =>
+        li.classList.toggle('active', ['buscar', 'solicitudes', 'amigos'][i] === tab)
+    );
+    if (tab === 'solicitudes') mostrarSolicitudes();
+    if (tab === 'amigos')      mostrarAmigos();
+}
+
+function cerrarSesion() { localStorage.removeItem('user'); window.location.href = 'login-register.html'; }
+
+document.getElementById('contadorSolicitudes').textContent = solicitudesRecibidas.length;
+buscarUsuarios();
+</script>
+</body>
+</html>

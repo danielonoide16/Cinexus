@@ -16,7 +16,7 @@
         <style>
             body {
                 background: linear-gradient(135deg, #0b0b0f, #2a0f4a);
-                height: 100vh;
+                min-height: 100vh;
             }
             main.container {
                 max-width: 900px;
@@ -206,9 +206,11 @@
                 border-radius: 12px;
                 border: 1px solid #2a2a35;
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                align-items: flex-start;
+                justify-content: flex-start;
                 color: #777;
+                min-height: 420px;
+                padding: 20px;
             }
             .list-header {
                 display: flex;
@@ -216,6 +218,7 @@
                 align-items: center;
             }
             .list-actions span {
+                pointer-events: auto;
                 margin-left: 8px;
                 cursor: pointer;
                 font-size: 0.8rem;
@@ -227,8 +230,155 @@
                 opacity: 1;
                 transform: scale(1.1);
             }
-            .list-actions span {
-                pointer-events: auto;
+            .list-detail {
+                width: 100%;
+            }
+            .list-detail-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 18px;
+            }
+            .list-detail-header h5 {
+                margin-bottom: 6px;
+                font-size: 1.2rem;
+            }
+            .list-detail-header p {
+                margin: 0;
+                color: #b8b8c5;
+                font-size: 0.92rem;
+            }
+            .list-meta-chip {
+                padding: 8px 12px;
+                border-radius: 999px;
+                background: rgba(111, 66, 193, 0.15);
+                border: 1px solid rgba(155, 123, 255, 0.25);
+                color: #d9ccff;
+                font-size: 0.82rem;
+                white-space: nowrap;
+            }
+            .movie-grid {
+                display: grid;
+                gap: 18px;
+            }
+            .movie-highlight-card {
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 18px;
+                padding: 16px;
+                border-radius: 16px;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(111, 66, 193, 0.08));
+                border: 1px solid #302a43;
+                transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+                cursor: pointer;
+            }
+            .movie-highlight-card:hover {
+                transform: translateY(-2px);
+                border-color: rgba(155, 123, 255, 0.45);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+            }
+            .movie-poster {
+                width: 100%;
+                aspect-ratio: 2 / 3;
+                object-fit: cover;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: #12121a;
+            }
+            .movie-info {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .movie-title-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .movie-title-row h6 {
+                margin: 0;
+                font-size: 1.15rem;
+            }
+            .movie-subtitle {
+                color: #b8b8c5;
+                font-size: 0.88rem;
+            }
+            .movie-score {
+                min-width: 92px;
+                text-align: center;
+                padding: 10px 12px;
+                border-radius: 14px;
+                background: rgba(255, 193, 7, 0.08);
+                border: 1px solid rgba(255, 193, 7, 0.22);
+                color: #ffe7a0;
+            }
+            .movie-score strong {
+                display: block;
+                font-size: 1.05rem;
+                line-height: 1.1;
+            }
+            .movie-score span {
+                font-size: 0.75rem;
+                color: #e7d9a3;
+            }
+            .movie-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .movie-tags span {
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: #222231;
+                color: #dfdfeb;
+                font-size: 0.78rem;
+            }
+            .movie-details {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px 18px;
+                font-size: 0.88rem;
+            }
+            .movie-details strong {
+                color: #ffffff;
+            }
+            .movie-plot {
+                margin: 0;
+                color: #d6d6dd;
+                line-height: 1.5;
+                font-size: 0.9rem;
+            }
+            .simple-list {
+                width: 100%;
+            }
+            .simple-list ul {
+                margin: 18px 0 0;
+                padding-left: 18px;
+            }
+            .simple-list li {
+                margin-bottom: 10px;
+                color: #d8d8de;
+            }
+            @media (max-width: 768px) {
+                .lists-layout {
+                    grid-template-columns: 1fr;
+                }
+                .movie-highlight-card {
+                    grid-template-columns: 1fr;
+                }
+                .movie-poster {
+                    max-width: 180px;
+                    margin: 0 auto;
+                }
+                .movie-title-row,
+                .list-detail-header {
+                    flex-direction: column;
+                }
+                .movie-details {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
     </head>
@@ -382,7 +532,6 @@
                     </div>
                     <div class="modal-body">
                         <form id="profileForm">
-
                             <div class="mb-3">
                                 <label class="form-label">Name</label>
                                 <input type="text" class="form-control" id="inputName" value="Jhon Doe">
@@ -397,6 +546,7 @@
                                 <label class="form-label">Bio</label>
                                 <textarea class="form-control" id="inputBio" rows="3">I am a film enthusiast who loves to watch and review movies.</textarea>
                             </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
                         <button
@@ -423,10 +573,142 @@
         ></script>
         <script>
             //harcoded data for lists - in a real app this would come from the backend
+            
             const listData = {
-                classics: ["The Godfather", "Casablanca", "Citizen Kane"],
-                nolan: ["Inception", "Interstellar", "The Dark Knight"],
-                scifi: ["Blade Runner", "The Matrix", "Arrival"]
+                classics: {
+                    description: "Timeless movies that I can watch over and over again",
+                    movies: [
+                        {
+                            title: "The Godfather",
+                            year: "1972",
+                            rated: "R",
+                            runtime: "175 min",
+                            genre: "Crime, Drama",
+                            director: "Francis Ford Coppola",
+                            plot: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY562_CR8,0,380,562_.jpg",
+                            imdbRating: "9.2",
+                            awards: "Won 3 Oscars",
+                            boxOffice: "$136,381,073"
+                        },
+                        {
+                            title: "Casablanca",
+                            year: "1943",
+                            rated: "PG",
+                            runtime: "102 min",
+                            genre: "Drama, Romance, War",
+                            director: "Michael Curtiz",
+                            plot: "A cynical expatriate American cafe owner struggles to decide whether or not to help his former lover and her fugitive husband escape the Nazis in French Morocco.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BNWEzN2U1YTYtYTQyMS00NTVkLWE2NGQtZWFlMmM0MDNjMmRiXkEyXkFqcGc@._V1_QL75_UX380_CR0,5,380,562_.jpg",
+                            imdbRating: "8.5",
+                            awards: "Won 3 Oscars",
+                            boxOffice: "$4,219,709"
+                        },
+                        {
+                            title: "Citizen Kane",
+                            year: "1941",
+                            rated: "PG",
+                            runtime: "119 min",
+                            genre: "Drama, Mystery",
+                            director: "Orson Welles",
+                            plot: "Following the death of publishing tycoon Charles Foster Kane, reporters scramble to uncover the meaning of his final utterance: 'Rosebud.'",
+                            poster: "https://m.media-amazon.com/images/M/MV5BYjk1ZDJlMmUtOWQ0Zi00MDM5LTk1OGYtODczNjFmMGYwZGVkXkEyXkFqcGc@._V1_SX300.jpg",
+                            imdbRating: "8.2",
+                            awards: "Won 1 Oscar",
+                            boxOffice: "$1,627,530"
+                        }
+                    ]
+                },
+
+                nolan: {
+                    description: "All my favorite Christopher Nolan films",
+                    movies: [
+                        {
+                            title: "Inception",
+                            year: "2010",
+                            rated: "PG-13",
+                            runtime: "148 min",
+                            genre: "Action, Adventure, Sci-Fi",
+                            director: "Christopher Nolan",
+                            plot: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a CEO's mind.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+                            imdbRating: "8.8",
+                            awards: "Won 4 Oscars",
+                            boxOffice: "$292,587,330"
+                        },
+                        {
+                            title: "Interstellar",
+                            year: "2014",
+                            rated: "PG-13",
+                            runtime: "169 min",
+                            genre: "Adventure, Drama, Sci-Fi",
+                            director: "Christopher Nolan",
+                            plot: "A team travels through a wormhole in space in an attempt to ensure humanity's survival.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+                            imdbRating: "8.7",
+                            awards: "Won 1 Oscar",
+                            boxOffice: "$203,227,580"
+                        },
+                        {
+                            title: "The Dark Knight",
+                            year: "2008",
+                            rated: "PG-13",
+                            runtime: "152 min",
+                            genre: "Action, Crime, Drama",
+                            director: "Christopher Nolan",
+                            plot: "Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+                            imdbRating: "9.1",
+                            awards: "Won 2 Oscars",
+                            boxOffice: "$534,987,076"
+                        }
+                    ]
+                },
+
+                scifi: {
+                    description: "Must Watch Sci-Fi",
+                    movies: [
+                        {
+                            title: "Blade Runner",
+                            year: "1982",
+                            rated: "R",
+                            runtime: "117 min",
+                            genre: "Action, Drama, Sci-Fi",
+                            director: "Ridley Scott",
+                            plot: "A blade runner must hunt down replicants who have returned to Earth.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BOWQ4YTBmNTQtMDYxMC00NGFjLTkwOGQtNzdhNmY1Nzc1MzUxXkEyXkFqcGc@._V1_SX300.jpg",
+                            imdbRating: "8.1",
+                            awards: "Nominated for 2 Oscars",
+                            boxOffice: "$32,914,489"
+                        },
+                        {
+                            title: "The Matrix",
+                            year: "1999",
+                            rated: "R",
+                            runtime: "136 min",
+                            genre: "Action, Sci-Fi",
+                            director: "Lana Wachowski, Lilly Wachowski",
+                            plot: "A hacker discovers reality is a simulation and joins a rebellion.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_SX300.jpg",
+                            imdbRating: "8.7",
+                            awards: "Won 4 Oscars",
+                            boxOffice: "$177,559,005"
+                        },
+                        {
+                            title: "Arrival",
+                            year: "2016",
+                            rated: "PG-13",
+                            runtime: "116 min",
+                            genre: "Drama, Mystery, Sci-Fi",
+                            director: "Denis Villeneuve",
+                            plot: "A linguist works to communicate with extraterrestrials before global war breaks out.",
+                            poster: "https://m.media-amazon.com/images/M/MV5BMTExMzU0ODcxNDheQTJeQWpwZ15BbWU4MDE1OTI4MzAy._V1_SX300.jpg",
+                            imdbRating: "7.9",
+                            awards: "Won 1 Oscar",
+                            boxOffice: "$100,546,139"
+                        }
+                    ]
+                }
             };
 
 
@@ -465,16 +747,75 @@
             function selectList(element, listId) {
                 document.querySelectorAll(".list-card").forEach(c => c.classList.remove("active"));
                 element.classList.add("active");
-                const movies = listData[listId] || [];
-                document.getElementById("listContent").innerHTML = `
-                    <div class="p-3 w-100">
-                        <h5 class="text-white mb-3">${element.querySelector("h5").innerText}</h5>
-                        ${movies.map(m => `
-                        <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded" style="background:#12121a;border:1px solid #2e2e3a;cursor:pointer" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m}')">
-                            <span class="text-white">${m}</span>
-                        </div>`).join('')}
-                    </div>`;
+
+                const content = document.getElementById("listContent");
+                const title = element.querySelector("h5").innerText;
+                const description = element.querySelector("p").innerText;
+                const badge = element.querySelector(".badge").innerText;
+                const listEntry = listData[listId];
+
+                if (listEntry?.movies?.length) {
+                    content.innerHTML = `
+                        <div class="list-detail">
+                            <div class="list-detail-header">
+                                <div>
+                                    <h5>${title}</h5>
+                                    <p>${listEntry.description || description}</p>
+                                </div>
+                                <span class="list-meta-chip">${badge}</span>
+                            </div>
+                            <div class="movie-grid">
+                                ${listEntry.movies.map(movie => `
+                                    <article class="movie-highlight-card" onclick="goToMovie('${movie.title.replace(/'/g, "\\'")}')">
+                                        <img class="movie-poster" src="${movie.poster}" alt="Poster of ${movie.title}">
+                                        <div class="movie-info">
+                                            <div class="movie-title-row">
+                                                <div>
+                                                    <h6>${movie.title}</h6>
+                                                    <div class="movie-subtitle">${movie.year} • ${movie.rated} • ${movie.runtime}</div>
+                                                </div>
+                                                <div class="movie-score">
+                                                    <strong>${movie.imdbRating}/10</strong>
+                                                    <span>IMDb</span>
+                                                </div>
+                                            </div>
+                                            <div class="movie-tags">
+                                                <span>${movie.genre}</span>
+                                                <span>${movie.awards}</span>
+                                                <span>Box office ${movie.boxOffice}</span>
+                                            </div>
+                                            <div class="movie-details">
+                                                <div><strong>Director:</strong> ${movie.director}</div>
+                                                <div><strong>Audience:</strong> ${movie.rated}</div>
+                                            </div>
+                                            <p class="movie-plot">${movie.plot}</p>
+                                        </div>
+                                    </article>
+                                `).join("")}
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const movies = listEntry || [];
+                content.innerHTML = `
+                    <div class="simple-list">
+                        <h5>${title}</h5>
+                        <p>${description}</p>
+                        <ul>
+                            ${movies.map(m => `<li>${m}</li>`).join("")}
+                        </ul>
+                    </div>
+                `;
             }
+            document.addEventListener("DOMContentLoaded", () => {
+                const defaultList = document.querySelector(".list-card.active");
+                if (defaultList) {
+                    selectList(defaultList, "classics");
+                }
+            });
+
             //placeholder functions for list actions
             function createNewList() {
                 alert("Create new list (fake)");

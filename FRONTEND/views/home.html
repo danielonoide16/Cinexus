@@ -6,66 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <style>
-        body {
-            background-color: #0b0b0f;
-        }
-        .hero {
-            background: linear-gradient(135deg, #1a0f2e, #5a2ea6);
-            padding: 60px;
-            text-align: center;
-        }
-        .movie-card {
-            background-color: #141420;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: transform .2s;
-        }
-        .movie-card:hover {
-            transform: scale(1.05);
-        }
-        .btn-purple {
-            background-color: #6f42c1;
-            border: none;
-        }
-        .user-link {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 14px;
-            border-radius: 999px;
-            cursor: pointer;
-            transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
-        }
-        .user-link:hover {
-            background-color: rgba(111, 66, 193, 0.2);
-            color: #ffffff;
-            box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
-            transform: translateY(-1px);
-        }
-        .user-link:active {
-            transform: translateY(0);
-        }
-        .home-link {
-                display: inline-flex;
-                align-items: center;
-                padding: 8px 14px;
-                border-radius: 999px;
-                cursor: pointer;
-                transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .home-link:hover {
-                background-color: rgba(111, 66, 193, 0.2);
-                color: #fff;
-                box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
-                transform: translateY(-1px);
-            }
-            .home-link:active {
-                transform: translateY(0);
-            }
-    </style>
+    <link rel="stylesheet" href="../assets/style/style.css" />
 </head>
-<body>
+<body class="page-home">
 
 <nav class="navbar navbar-dark bg-dark px-4">
     <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
@@ -158,7 +101,7 @@ function renderMovies(){
     filtered.forEach(m => {
         container.innerHTML += `
         <div class="col-md-3">
-            <div class="movie-card" style="cursor:pointer" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m.title}')">
+            <div class="movie-card" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m.title}')">
                 <img src="${m.img}" class="w-100">
                 <div class="p-2 text-white">
                     <strong>${m.title}</strong><br>

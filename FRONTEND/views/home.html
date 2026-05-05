@@ -62,11 +62,9 @@
 </div>
 
 <script>
-const user = JSON.parse(localStorage.getItem('user'));
-
-if(!user){
-    window.location.href = 'login-register.html';
-}
+const token = localStorage.getItem('token');
+if(!token){ window.location.href = 'login-register.html'; }
+const user = JSON.parse(localStorage.getItem('user')) || {};
 
 function getInitials(name) {
     return (name || '')
@@ -130,7 +128,7 @@ function goToProfile(){
 }
 
 function logout(){
-    localStorage.removeItem('user');
+    localStorage.clear();
     window.location.href = 'login-register.html';
 }
 

@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Jhon Doe",
+    "email": "jhon.doe@example.com",
+    "password": "123456",
+    "bio": "I'm a film enthusiast who loves to watch and review movies."
+  },
+  {
+    "id": 2,
+    "name": "Carlos Ruiz",
+    "email": "carlos.ruiz@example.com",
+    "password": "123456",
+    "bio": "Fanático del cine de acción"
+  },
+  {
+    "id": 3,
+    "name": "Maria Lopez",
+    "email": "maria.lopez@example.com",
+    "password": "123456",
+    "bio": "Le encantan las películas de terror"
+  },
+  {
+    "id": 4,
+    "name": "Luis Torres",
+    "email": "luis.torres@example.com",
+    "password": "123456",
+    "bio": "Solo ve comedias"
+  },
+  {
+    "id": 5,
+    "name": "Axel",
+    "email": "a_vzq@gmail.com",
+    "password": "12345678",
+    "bio": "I love my gf"
+  }
+]

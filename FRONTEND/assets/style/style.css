@@ -66,6 +66,41 @@ body.page-profile {
     transform: translateY(-1px);
 }
 
+.navbar-user-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar.nav-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-right: 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.avatar.nav-avatar.is-clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.avatar.nav-avatar.is-clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(111, 66, 193, 0.35);
+    background-color: var(--accent-hover);
+}
+
 .btn-purple,
 .btn-morado,
 .page-login .btn-primary,
@@ -228,7 +263,7 @@ body.page-profile {
     font-weight: 600;
 }
 
-.page-profile .avatar {
+.page-profile .avatar:not(.nav-avatar) {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -532,6 +567,37 @@ body.page-profile {
     color: #d8d8de;
 }
 
+.page-profile .edit-movie-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.page-profile .edit-movie-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.page-profile .edit-movie-item__content {
+    min-width: 0;
+}
+
+.page-profile .modal-content {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dark);
+}
+
+.page-profile .modal-header,
+.page-profile .modal-footer {
+    border-color: var(--border-soft);
+}
+
 @media (max-width: 768px) {
     .page-profile .lists-layout {
         grid-template-columns: 1fr;
@@ -553,5 +619,10 @@ body.page-profile {
 
     .page-profile .movie-details {
         grid-template-columns: 1fr;
+    }
+
+    .page-profile .edit-movie-item {
+        flex-direction: column;
+        align-items: stretch;
     }
 }

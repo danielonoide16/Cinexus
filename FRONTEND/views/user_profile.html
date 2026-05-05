@@ -20,8 +20,8 @@
         <!-- NAVBAR -->
         <nav class="navbar navbar-dark bg-dark px-4">
             <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
-            <div>
-                <span id="userName" class="me-3 user-link" onclick="goToProfile()" title="View profile">Jhon Doe</span>
+            <div class="navbar-user-group">
+                <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile">JD</div>
                 <a href="friends.html" class="btn btn-outline-secondary me-2">Friends</a>
                 <button class="btn btn-outline-light" onclick="logout()">Logout</button>
             </div>
@@ -82,47 +82,11 @@
                 <!-- My Lists -->
                 <div id="lists-section" class="tab-content d-none">
                     <div class="d-flex justify-content-end mb-2">
-                        <button class="btn btn-primary btn-sm" onclick="createNewList()">+ New List</button>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newListModal">+ New List</button>
                     </div>
                     <div class="lists-layout">
 
-                        <div class="lists-sidebar" id="listsContainer">
-                            <div class="list-card active" onclick="selectList(this, 'classics')">
-                                <div class="list-header">
-                                    <h5>My Favorite Classics</h5>
-                                    <div class="list-actions">
-                                        <span onclick="editList(event)">✏️</span>
-                                        <span onclick="deleteList(event)">🗑️</span>
-                                    </div>
-                                </div>
-                                <p>Timeless movies that I can watch over and over again</p>
-                                <span class="badge">3 movies</span>
-                            </div>
-
-                            <div class="list-card" onclick="selectList(this, 'nolan')">
-                                <div class="list-header">
-                                    <h5>Nolan Collection</h5>
-                                    <div class="list-actions">
-                                        <span onclick="editList(event)">✏️</span>
-                                        <span onclick="deleteList(event)">🗑️</span>
-                                    </div>
-                                </div>
-                                <p>All my favorite Christopher Nolan films</p>
-                                <span class="badge">3 movies</span>
-                            </div>
-
-                            <div class="list-card" onclick="selectList(this, 'scifi')">
-                                <div class="list-header">
-                                    <h5>Must Watch Sci-Fi</h5>
-                                    <div class="list-actions">
-                                        <span onclick="editList(event)">✏️</span>
-                                        <span onclick="deleteList(event)">🗑️</span>
-                                    </div>
-                                </div>
-                                <p>Essential science fiction movies</p>
-                                <span class="badge">3 movies</span>
-                            </div>
-                        </div>
+                        <div class="lists-sidebar" id="listsContainer"></div>
 
                         <div class="lists-content p-4" id="listContent">
                             <p class="text-secondary">Select a list to view its content</p>
@@ -135,7 +99,7 @@
         
         </main>
         
-        
+        <!-- Edit profile modal-->
         <div
             class="modal fade"
             id="editProfileModal"
@@ -144,7 +108,7 @@
             data-bs-keyboard="false"
             
             role="dialog"
-            aria-labelledby="modalTitleId"
+            aria-labelledby="editProfileModalTitle"
             aria-hidden="true"
         >
             <div
@@ -153,7 +117,7 @@
             >
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitleId">
+                        <h5 class="modal-title" id="editProfileModalTitle">
                             Edit Profile
                         </h5>
                         <button
@@ -179,6 +143,11 @@
                                 <label class="form-label">Bio</label>
                                 <textarea class="form-control" id="inputBio" rows="3">I am a film enthusiast who loves to watch and review movies.</textarea>
                             </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Profile Picture</label>
+                                <input class="form-control" type="file" id="inputAvatar">
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -195,6 +164,149 @@
             </div>
         </div>
         
+        <!-- Create new List modal -->
+        <div
+            class="modal fade"
+            id="newListModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="newListModalTitle"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newListModalTitle">
+                            Create New List
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newListForm">
+                            <div class="mb-3">
+                                <label class="form-label">List Name</label>
+                                <input type="text" class="form-control" id="newListName" placeholder="My Favorite Movies">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="newListDescription" rows="3" placeholder="A brief description of the movie list"></textarea>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="createNewList()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit list modal -->
+        <div
+            class="modal fade"
+            id="editListModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="editListModalTitle"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editListModalTitle">Edit List</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editListForm">
+                            <div class="mb-3">
+                                <label class="form-label" for="editListName">List Name</label>
+                                <input type="text" class="form-control" id="editListName" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label" for="editListDescription">Description</label>
+                                <textarea class="form-control" id="editListDescription" rows="3"></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Movies in this list</h6>
+                                <span id="editListMovieCount" class="badge"></span>
+                            </div>
+
+                            <div id="editListMovies" class="edit-movie-list"></div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="saveListChanges()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete list confirmation modal -->
+        <div
+            class="modal fade"
+            id="deleteListModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="deleteListModalTitle"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteListModalTitle">Delete List</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2 text-white">This action will delete the list and all its content.</p>
+                        <p class="mb-0 text-secondary" id="deleteListMessage"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="confirmDeleteList()">Delete List</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
         <footer class="text-center py-3">
             <small>&copy; 2026 Cinexus - All rights reserved</small>
         </footer>
@@ -209,6 +321,7 @@
             
             const listData = {
                 classics: {
+                    name: "My Favorite Classics",
                     description: "Timeless movies that I can watch over and over again",
                     movies: [
                         {
@@ -254,6 +367,7 @@
                 },
 
                 nolan: {
+                    name: "Nolan Collection",
                     description: "All my favorite Christopher Nolan films",
                     movies: [
                         {
@@ -299,7 +413,8 @@
                 },
 
                 scifi: {
-                    description: "Must Watch Sci-Fi",
+                    name: "Must Watch Sci-Fi",
+                    description: "Essential science fiction movies",
                     movies: [
                         {
                             title: "Blade Runner",
@@ -344,6 +459,19 @@
                 }
             };
 
+            let selectedListId = "classics";
+            let editingListId = null;
+            let deletingListId = null;
+            let editDraftMovies = [];
+            let editListModalInstance;
+            let deleteListModalInstance;
+            let newListModalInstance;
+
+            // This functions are placeholders they will be relocated to controllers and properly implemented in the future
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                window.location.href = 'login-register.html';
+            }
 
             function goToMovie(movieID) {
                 window.location.href = 'movie_details.html'; // Pass the movie ID to the details page in the future
@@ -359,6 +487,15 @@
             }
             function goToHome(){
                 window.location.href = 'home.html';
+            }
+            function getInitials(name) {
+                return (name || '')
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map(part => part[0].toUpperCase())
+                    .join('') || 'JD';
             }
             function showTab(tab) {
                 const reviews = document.getElementById("reviews-section");
@@ -377,23 +514,61 @@
                     tabs[1].classList.add("active");
                 }
             }
-            function selectList(element, listId) {
-                document.querySelectorAll(".list-card").forEach(c => c.classList.remove("active"));
-                element.classList.add("active");
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
 
+            function updateListsTabLabel() {
+                const listTab = document.querySelectorAll(".tabs li")[1];
+                if (listTab) {
+                    listTab.textContent = `My Lists (${Object.keys(listData).length})`;
+                }
+            }
+
+            function renderListsSidebar() {
+                const container = document.getElementById("listsContainer");
+                const entries = Object.entries(listData);
+
+                container.innerHTML = entries.map(([listId, listEntry]) => `
+                    <div class="list-card ${listId === selectedListId ? "active" : ""}" data-list-id="${listId}" onclick="selectListById('${listId}')">
+                        <div class="list-header">
+                            <h5>${escapeHtml(listEntry.name)}</h5>
+                            <div class="list-actions">
+                                <span title="Edit list" onclick="editList(event, '${listId}')">✏️</span>
+                                <span title="Delete list" onclick="deleteList(event, '${listId}')">🗑️</span>
+                            </div>
+                        </div>
+                        <p>${escapeHtml(listEntry.description)}</p>
+                        <span class="badge">${listEntry.movies.length} ${listEntry.movies.length === 1 ? "movie" : "movies"}</span>
+                    </div>
+                `).join("");
+
+                updateListsTabLabel();
+            }
+
+            function renderListContent(listId) {
                 const content = document.getElementById("listContent");
-                const title = element.querySelector("h5").innerText;
-                const description = element.querySelector("p").innerText;
-                const badge = element.querySelector(".badge").innerText;
                 const listEntry = listData[listId];
+
+                if (!listEntry) {
+                    content.innerHTML = '<p class="text-secondary">Select a list to view its content</p>';
+                    return;
+                }
+
+                const badge = `${listEntry.movies.length} ${listEntry.movies.length === 1 ? "movie" : "movies"}`;
 
                 if (listEntry?.movies?.length) {
                     content.innerHTML = `
                         <div class="list-detail">
                             <div class="list-detail-header">
                                 <div>
-                                    <h5>${title}</h5>
-                                    <p>${listEntry.description || description}</p>
+                                    <h5>${escapeHtml(listEntry.name)}</h5>
+                                    <p>${escapeHtml(listEntry.description)}</p>
                                 </div>
                                 <span class="list-meta-chip">${badge}</span>
                             </div>
@@ -431,35 +606,180 @@
                     return;
                 }
 
-                const movies = listEntry || [];
                 content.innerHTML = `
                     <div class="simple-list">
-                        <h5>${title}</h5>
-                        <p>${description}</p>
-                        <ul>
-                            ${movies.map(m => `<li>${m}</li>`).join("")}
-                        </ul>
+                        <h5>${escapeHtml(listEntry.name)}</h5>
+                        <p>${escapeHtml(listEntry.description)}</p>
+                        <p class="mb-0 text-secondary">This list does not contain any movies right now.</p>
                     </div>
                 `;
             }
-            document.addEventListener("DOMContentLoaded", () => {
-                const defaultList = document.querySelector(".list-card.active");
-                if (defaultList) {
-                    selectList(defaultList, "classics");
+
+            function selectListById(listId) {
+                if (!listData[listId]) {
+                    return;
                 }
+
+                selectedListId = listId;
+                document.querySelectorAll(".list-card").forEach(card => {
+                    card.classList.toggle("active", card.dataset.listId === listId);
+                });
+                renderListContent(listId);
+            }
+
+            function renderEditMoviesList() {
+                const container = document.getElementById("editListMovies");
+                const counter = document.getElementById("editListMovieCount");
+
+                counter.textContent = `${editDraftMovies.length} ${editDraftMovies.length === 1 ? "movie" : "movies"}`;
+
+                if (!editDraftMovies.length) {
+                    container.innerHTML = '<p class="text-secondary mb-0">This list has no movies. You can still save the new name and description.</p>';
+                    return;
+                }
+
+                container.innerHTML = editDraftMovies.map((movie, index) => `
+                    <div class="edit-movie-item">
+                        <div class="edit-movie-item__content">
+                            <strong class="d-block text-white">${escapeHtml(movie.title)}</strong>
+                            <small class="text-secondary">${escapeHtml(movie.year)} • ${escapeHtml(movie.genre)}</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMovieFromDraft(${index})">Remove</button>
+                    </div>
+                `).join("");
+            }
+
+            function removeMovieFromDraft(index) {
+                editDraftMovies.splice(index, 1);
+                renderEditMoviesList();
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                editListModalInstance = new bootstrap.Modal(document.getElementById("editListModal"));
+                deleteListModalInstance = new bootstrap.Modal(document.getElementById("deleteListModal"));
+                newListModalInstance = new bootstrap.Modal(document.getElementById("newListModal"));
+
+                document.getElementById("navAvatar").textContent = getInitials(user.name);
+                document.getElementById("profileName").textContent = user.name;
+                document.querySelector("#personal-info .avatar").textContent = getInitials(user.name);
+
+                renderListsSidebar();
+                selectListById(selectedListId);
             });
 
-            //placeholder functions for list actions
             function createNewList() {
-                alert("Create new list (fake)");
+                const nameInput = document.getElementById("newListName");
+                const descriptionInput = document.getElementById("newListDescription");
+                const name = nameInput.value.trim();
+                const description = descriptionInput.value.trim();
+
+                if (!name) {
+                    alert("Please enter a name for the new list.");
+                    return;
+                }
+
+                const baseId = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "new-list";
+                let newId = baseId;
+                let suffix = 2;
+
+                while (listData[newId]) {
+                    newId = `${baseId}-${suffix}`;
+                    suffix += 1;
+                }
+
+                listData[newId] = {
+                    name,
+                    description: description || "A custom movie list.",
+                    movies: []
+                };
+
+                nameInput.value = "";
+                descriptionInput.value = "";
+
+                renderListsSidebar();
+                selectListById(newId);
+                newListModalInstance.hide();
             }
-            function editList(event) {
+
+            function editList(event, listId) {
                 event.stopPropagation();
-                alert("Edit list (fake)");
+                const currentListId = listId || selectedListId;
+                const listEntry = listData[currentListId];
+
+                if (!listEntry) {
+                    return;
+                }
+
+                editingListId = currentListId;
+                document.getElementById("editListName").value = listEntry.name;
+                document.getElementById("editListDescription").value = listEntry.description;
+                editDraftMovies = listEntry.movies.map(movie => ({ ...movie }));
+                renderEditMoviesList();
+                editListModalInstance.show();
             }
-            function deleteList(event) {
+
+            function saveListChanges() {
+                const listEntry = listData[editingListId];
+
+                if (!listEntry) {
+                    return;
+                }
+
+                const name = document.getElementById("editListName").value.trim();
+                const description = document.getElementById("editListDescription").value.trim();
+
+                if (!name) {
+                    alert("The list name cannot be empty.");
+                    return;
+                }
+
+                listEntry.name = name;
+                listEntry.description = description || "A curated movie list.";
+                listEntry.movies = editDraftMovies.map(movie => ({ ...movie }));
+
+                renderListsSidebar();
+                selectListById(editingListId);
+                editListModalInstance.hide();
+            }
+
+            function deleteList(event, listId) {
                 event.stopPropagation();
-                alert("Delete list (fake)");
+                const currentListId = listId || selectedListId;
+                const listEntry = listData[currentListId];
+
+                if (!listEntry) {
+                    return;
+                }
+
+                deletingListId = currentListId;
+                document.getElementById("deleteListMessage").textContent =
+                    `"${listEntry.name}" and its ${listEntry.movies.length} ${listEntry.movies.length === 1 ? "movie" : "movies"} will be removed permanently.`;
+                deleteListModalInstance.show();
+            }
+
+            function confirmDeleteList() {
+                if (!deletingListId || !listData[deletingListId]) {
+                    return;
+                }
+
+                delete listData[deletingListId];
+
+                const remainingIds = Object.keys(listData);
+                if (!remainingIds.length) {
+                    selectedListId = null;
+                    renderListsSidebar();
+                    renderListContent(null);
+                    deleteListModalInstance.hide();
+                    return;
+                }
+
+                if (selectedListId === deletingListId) {
+                    selectedListId = remainingIds[0];
+                }
+
+                renderListsSidebar();
+                selectListById(selectedListId);
+                deleteListModalInstance.hide();
             }
         </script>
     </body>

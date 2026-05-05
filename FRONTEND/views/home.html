@@ -12,8 +12,8 @@
 
 <nav class="navbar navbar-dark bg-dark px-4">
     <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
-    <div>
-        <span id="userName" class="me-3 user-link" onclick="goToProfile()" title="View profile"></span>
+    <div class="navbar-user-group">
+        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile">JD</div>
         <button class="btn btn-outline-light" onclick="logout()">Logout</button>
     </div>
 </nav>
@@ -68,7 +68,17 @@ if(!user){
     window.location.href = 'login-register.html';
 }
 
-document.getElementById('userName').textContent = user.name;
+function getInitials(name) {
+    return (name || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join('') || 'JD';
+}
+
+document.getElementById('navAvatar').textContent = getInitials(user.name);
 
 // DATA HARDCODEADA
 const movies = [

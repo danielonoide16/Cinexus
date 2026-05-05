@@ -1,9 +1,41 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
-const FILE = path.join(__dirname, '..', 'database', 'users.json');
+const userSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true
+        },
+        password: {
+            type: String,
+            required: true
+        },
+        bio: {
+            type: String,
+            default: ''
+        },
+        avatarUrl: {
+            type: String,
+            default: ''
+        },
+        friends: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        ]
+    },
+    {
+        timestamps: true
+    }
+);
 
-const read = () => JSON.parse(fs.readFileSync(FILE, 'utf-8'));
-const write = (data) => fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
-
-module.exports = { read, write };
+module.exports = mongoose.model('User', userSchema);

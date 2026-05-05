@@ -1,62 +1,106 @@
-const Friend = require('../models/friendModel');
+const FriendRequest = require('../models/friendModel');
 const User = require('../models/userModel');
 
-exports.sendRequest = (req, res) => {
+exports.sendRequest = async (req, res) => {
     const { toId } = req.body;
-    const friends = Friend.read();
-    const exists = friends.find(f =>
-        (f.from === req.user.id && f.to === toId) || (f.from === toId && f.to === req.user.id)
+    if (!toId) return res.status(400).json({ error: 'toId is required' });
+    if (toId === req.user.id) return res.status(400).json({ error: 'You cannot add yourself' });
+
+    const [currentUser, targetUser] = await Promise.all([
+        User.findById(req.user.id),
+        User.findById(toId)
+    ]);
+
+    if (!currentUser || !targetUser) return res.status(404).json({ error: 'User not found' });
+    if (currentUser.friends.some(friendId => friendId.toString() === toId)) {
+        return res.status(400).json({ error: 'Users are already friends' });
+    }
+
+    const existingRequest = await FriendRequest.findOne({
+        $or: [
+            { from: req.user.id, to: toId },
+            { from: toId, to: req.user.id }
+        ]
+    });
+    if (existingRequest) return res.status(400).json({ error: 'Request already exists' });
+
+    await FriendRequest.create({ from: req.user.id, to: toId, status: 'pending' });
+    res.status(201).json({ message: 'Request sent' });
+};
+
+exports.getRequests = async (req, res) => {
+    const pending = await FriendRequest.find({
+        to: req.user.id,
+        status: 'pending'
+    }).populate('from', 'name bio avatarUrl');
+
+    res.json(
+        pending.map(request => ({
+            id: request.from._id,
+            name: request.from.name,
+            bio: request.from.bio,
+            avatarUrl: request.from.avatarUrl
+        }))
     );
-    if (exists) return res.status(400).json({ error: 'Request already exists' });
-
-    friends.push({ from: req.user.id, to: toId, status: 'pending' });
-    Friend.write(friends);
-    res.json({ message: 'Request sent' });
 };
 
-exports.getRequests = (req, res) => {
-    const friends = Friend.read();
-    const users = User.read();
-    const pending = friends
-        .filter(f => f.to === req.user.id && f.status === 'pending')
-        .map(f => {
-            const u = users.find(x => x.id === f.from);
-            return { id: u.id, name: u.name, bio: u.bio };
-        });
-    res.json(pending);
-};
-
-exports.handleRequest = (req, res) => {
+exports.handleRequest = async (req, res) => {
     const { action } = req.body;
-    const fromId = parseInt(req.params.fromId);
-    const friends = Friend.read();
-    const idx = friends.findIndex(f => f.from === fromId && f.to === req.user.id && f.status === 'pending');
-    if (idx === -1) return res.status(404).json({ error: 'Request not found' });
+    const { fromId } = req.params;
+    if (!['accept', 'decline'].includes(action)) {
+        return res.status(400).json({ error: 'Action must be accept or decline' });
+    }
+
+    const request = await FriendRequest.findOne({
+        from: fromId,
+        to: req.user.id,
+        status: 'pending'
+    });
+    if (!request) return res.status(404).json({ error: 'Request not found' });
 
     if (action === 'accept') {
-        friends[idx].status = 'accepted';
+        request.status = 'accepted';
+        await request.save();
+
+        await Promise.all([
+            User.findByIdAndUpdate(req.user.id, { $addToSet: { friends: fromId } }),
+            User.findByIdAndUpdate(fromId, { $addToSet: { friends: req.user.id } })
+        ]);
     } else {
-        friends.splice(idx, 1);
+        await request.deleteOne();
     }
-    Friend.write(friends);
+
     res.json({ message: action === 'accept' ? 'Friend added' : 'Request declined' });
 };
 
-exports.getFriends = (req, res) => {
-    const friends = Friend.read();
-    const users = User.read();
-    const myFriends = friends
-        .filter(f => f.status === 'accepted' && (f.from === req.user.id || f.to === req.user.id))
-        .map(f => {
-            const friendId = f.from === req.user.id ? f.to : f.from;
-            const u = users.find(x => x.id === friendId);
-            return { id: u.id, name: u.name, bio: u.bio };
-        });
-    res.json(myFriends);
+exports.getFriends = async (req, res) => {
+    const user = await User.findById(req.user.id).populate('friends', 'name bio avatarUrl');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user.friends);
 };
 
-exports.getSentRequests = (req, res) => {
-    const friends = Friend.read();
-    const sent = friends.filter(f => f.from === req.user.id && f.status === 'pending').map(f => f.to);
-    res.json(sent);
+exports.getSentRequests = async (req, res) => {
+    const sent = await FriendRequest.find({
+        from: req.user.id,
+        status: 'pending'
+    }).select('to');
+
+    res.json(sent.map(request => request.to));
+};
+
+exports.removeFriend = async (req, res) => {
+    const { friendId } = req.params;
+
+    await Promise.all([
+        User.findByIdAndUpdate(req.user.id, { $pull: { friends: friendId } }),
+        User.findByIdAndUpdate(friendId, { $pull: { friends: req.user.id } }),
+        FriendRequest.deleteMany({
+            $or: [
+                { from: req.user.id, to: friendId },
+                { from: friendId, to: req.user.id }
+            ]
+        })
+    ]);
+
+    res.json({ message: 'Friend removed' });
 };

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET = 'cinexus_secret_key';
+const SECRET = process.env.JWT_SECRET || 'cinexus_secret_key';
 
 module.exports = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];

@@ -58,6 +58,14 @@ function getInitials(name) {
     return (name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '??';
 }
 
+function getUserId(user) {
+    return String(user?.id || user?._id || '');
+}
+
+function escapeJsString(value) {
+    return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 document.getElementById('navAvatar').textContent = getInitials(usuario.name);
 
 // AJAX helpers
@@ -97,13 +105,14 @@ function buscarUsuarios() {
         if (!results.length) { contenedor.innerHTML = '<p class="text-secondary">No users found.</p>'; return; }
 
         contenedor.innerHTML = results.map(u => {
-            const isFriend = myFriends.some(f => f.id === u.id);
-            const isSent = sentRequests.includes(u.id);
+            const userId = getUserId(u);
+            const isFriend = myFriends.some(f => getUserId(f) === userId);
+            const isSent = sentRequests.includes(userId);
             let boton = isFriend
                 ? `<span class="badge bg-success">Friends</span>`
                 : isSent
                     ? `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`
-                    : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud(${u.id})">Add Friend</button>`;
+                    : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${escapeJsString(userId)}')">Add Friend</button>`;
             return tarjetaUsuario(u, boton);
         }).join('');
     });
@@ -111,9 +120,11 @@ function buscarUsuarios() {
 
 function enviarSolicitud(toId) {
     ajax('POST', '/friends/request', { toId }, function(data, status) {
-        if (status === 200) {
+        if (status === 200 || status === 201) {
             sentRequests.push(toId);
             buscarUsuarios();
+        } else {
+            alert(data.error || 'Unable to send friend request');
         }
     });
 }
@@ -125,10 +136,11 @@ function mostrarSolicitudes() {
         if (!pending.length) { contenedor.innerHTML = '<p class="text-secondary">No pending requests.</p>'; return; }
 
         contenedor.innerHTML = pending.map(u => {
+            const userId = getUserId(u);
             const boton = `
                 <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud(${u.id}, 'accept')">Accept</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud(${u.id}, 'decline')">Decline</button>
+                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud('${escapeJsString(userId)}', 'accept')">Accept</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud('${escapeJsString(userId)}', 'decline')">Decline</button>
                 </div>`;
             return tarjetaUsuario(u, boton);
         }).join('');

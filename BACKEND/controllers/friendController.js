@@ -76,7 +76,14 @@ exports.handleRequest = async (req, res) => {
 exports.getFriends = async (req, res) => {
     const user = await User.findById(req.user.id).populate('friends', 'name bio avatarUrl');
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user.friends);
+    res.json(
+        user.friends.map(friend => ({
+            id: friend._id.toString(),
+            name: friend.name,
+            bio: friend.bio,
+            avatarUrl: friend.avatarUrl
+        }))
+    );
 };
 
 exports.getSentRequests = async (req, res) => {
@@ -85,7 +92,7 @@ exports.getSentRequests = async (req, res) => {
         status: 'pending'
     }).select('to');
 
-    res.json(sent.map(request => request.to));
+    res.json(sent.map(request => request.to.toString()));
 };
 
 exports.removeFriend = async (req, res) => {

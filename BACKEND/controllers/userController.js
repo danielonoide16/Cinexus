@@ -43,5 +43,12 @@ exports.searchUsers = async (req, res) => {
         name: { $regex: query, $options: 'i' }
     }).select('name bio avatarUrl');
 
-    res.json(results);
+    res.json(
+        results.map(user => ({
+            id: user._id.toString(),
+            name: user.name,
+            bio: user.bio,
+            avatarUrl: user.avatarUrl
+        }))
+    );
 };

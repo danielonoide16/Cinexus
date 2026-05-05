@@ -338,7 +338,7 @@
             }
 
             // Load user profile from backend
-            ajaxGet('/user', function(data, status) {
+            ajaxGet('/users/me', function(data, status) {
                 if (status !== 200) { localStorage.clear(); window.location.href = 'login-register.html'; return; }
                 document.getElementById('navAvatar').textContent = getInitials(data.name);
                 document.getElementById('profileName').textContent = data.name;
@@ -687,7 +687,7 @@
                 const name = document.getElementById('inputName').value.trim();
                 const email = document.getElementById('inputEmail').value.trim();
                 const bio = document.getElementById('inputBio').value.trim();
-                ajaxPut('/user', { name, email, bio }, function(data, status) {
+                ajaxPut('/users/me', { name, email, bio }, function(data, status) {
                     if (status === 200) {
                         localStorage.setItem('user', JSON.stringify(data));
                         document.getElementById('profileName').textContent = data.name;

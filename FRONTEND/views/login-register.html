@@ -42,6 +42,10 @@
 <script>
 const API = 'http://localhost:3000/api';
 
+if (localStorage.getItem('token')) {
+    window.location.href = 'home.html';
+}
+
 function toggleForms(){
     document.getElementById('loginForm').classList.toggle('is-hidden');
     document.getElementById('registerForm').classList.toggle('is-hidden');
@@ -52,16 +56,16 @@ function login(){
     const password = document.getElementById('loginPassword').value;
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', API + '/login');
+    xhr.open('POST', API + '/auth/login');
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function(){
-        const data = JSON.parse(xhr.responseText);
+        const data = JSON.parse(xhr.responseText || '{}');
         if(xhr.status === 200){
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             window.location.href = 'home.html';
         } else {
-            alert(data.error);
+            alert(data.error || 'Unable to log in');
         }
     };
     xhr.send(JSON.stringify({ email, password }));
@@ -76,15 +80,19 @@ function register(){
     if(password !== confirm){ alert('Passwords do not match'); return; }
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', API + '/register');
+    xhr.open('POST', API + '/auth/register');
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function(){
-        const data = JSON.parse(xhr.responseText);
-        if(xhr.status === 200){
+        const data = JSON.parse(xhr.responseText || '{}');
+        if(xhr.status === 201){
             alert('User registered successfully');
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirm').value = '';
             toggleForms();
         } else {
-            alert(data.error);
+            alert(data.error || 'Unable to register');
         }
     };
     xhr.send(JSON.stringify({ name, email, password }));

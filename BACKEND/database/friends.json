@@ -8,5 +8,10 @@
     "from": 5,
     "to": 1,
     "status": "accepted"
+  },
+  {
+    "from": 6,
+    "to": 1,
+    "status": "pending"
   }
 ]

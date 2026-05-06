@@ -1,9 +1,28 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
-const FILE = path.join(__dirname, '..', 'database', 'friends.json');
+const friendRequestSchema = new mongoose.Schema(
+    {
+        from: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        to: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'accepted', 'rejected'],
+            default: 'pending'
+        }
+    },
+    {
+        timestamps: true
+    }
+);
 
-const read = () => JSON.parse(fs.readFileSync(FILE, 'utf-8'));
-const write = (data) => fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
+friendRequestSchema.index({ from: 1, to: 1 }, { unique: true });
 
-module.exports = { read, write };
+module.exports = mongoose.model('FriendRequest', friendRequestSchema);

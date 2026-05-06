@@ -19,7 +19,7 @@ function buscarUsuarios() {
                 ? `<span class="badge bg-success">Friends</span>`
                 : isSent
                     ? `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`
-                    : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud(${u.id})">Add Friend</button>`;
+                    : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.id}')">Add Friend</button>`;
             return tarjetaUsuario(u, boton);
         }).join('');
     });
@@ -27,7 +27,7 @@ function buscarUsuarios() {
 
 function enviarSolicitud(toId) {
     ajax('POST', '/friends/request', { toId }, function (data, status) {
-        if (status === 200) {
+        if (status === 201) {
             sentRequests.push(toId);
             buscarUsuarios();
         }
@@ -43,8 +43,8 @@ function mostrarSolicitudes() {
         contenedor.innerHTML = pending.map(u => {
             const boton = `
                 <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud(${u.id}, 'accept')">Accept</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud(${u.id}, 'decline')">Decline</button>
+                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud('${u.id}', 'accept')">Accept</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud('${u.id}', 'decline')">Decline</button>
                 </div>`;
             return tarjetaUsuario(u, boton);
         }).join('');

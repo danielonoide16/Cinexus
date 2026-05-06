@@ -2,7 +2,7 @@ function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
-    ajax('POST', '/login', { email, password }, function (data, status) {
+    ajax('POST', '/auth/login', { email, password }, function (data, status) {
         if (status === 200) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
@@ -21,8 +21,8 @@ function register() {
 
     if (password !== confirm) { alert('Passwords do not match'); return; }
 
-    ajax('POST', '/register', { name, email, password }, function (data, status) {
-        if (status === 200) {
+    ajax('POST', '/auth/register', { name, email, password }, function (data, status) {
+        if (status === 201) {
             alert('User registered successfully');
             toggleForms();
         } else {

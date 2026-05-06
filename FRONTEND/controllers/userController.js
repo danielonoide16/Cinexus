@@ -1,5 +1,5 @@
 function loadProfile() {
-    ajax('GET', '/user', null, function (data, status) {
+    ajax('GET', '/users/me', null, function (data, status) {
         if (status !== 200) { localStorage.clear(); window.location.href = 'login-register.html'; return; }
         document.getElementById('navAvatar').textContent = getInitials(data.name);
         document.getElementById('profileName').textContent = data.name;
@@ -17,7 +17,7 @@ function saveProfile() {
     const email = document.getElementById('inputEmail').value.trim();
     const bio = document.getElementById('inputBio').value.trim();
 
-    ajax('PUT', '/user', { name, email, bio }, function (data, status) {
+    ajax('PUT', '/users/me', { name, email, bio }, function (data, status) {
         if (status === 200) {
             localStorage.setItem('user', JSON.stringify(data));
             document.getElementById('profileName').textContent = data.name;

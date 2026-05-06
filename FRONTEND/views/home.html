@@ -61,21 +61,10 @@
 
 </div>
 
+<script src="../controllers/api.js"></script>
 <script>
-const token = localStorage.getItem('token');
-if(!token){ window.location.href = 'login-register.html'; }
+requireAuth();
 const user = JSON.parse(localStorage.getItem('user')) || {};
-
-function getInitials(name) {
-    return (name || '')
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(part => part[0].toUpperCase())
-        .join('') || 'JD';
-}
-
 document.getElementById('navAvatar').textContent = getInitials(user.name);
 
 // DATA HARDCODEADA
@@ -125,11 +114,6 @@ function renderMovies(){
 renderMovies();
 function goToProfile(){
     window.location.href = 'user_profile.html';
-}
-
-function logout(){
-    localStorage.clear();
-    window.location.href = 'login-register.html';
 }
 
 function goToHome(){

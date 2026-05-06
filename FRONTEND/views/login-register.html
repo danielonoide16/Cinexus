@@ -39,60 +39,17 @@
     </div>
 </div>
 
-<script>
-const API = 'http://localhost:3000/api';
-
-function toggleForms(){
-    document.getElementById('loginForm').classList.toggle('is-hidden');
-    document.getElementById('registerForm').classList.toggle('is-hidden');
-}
-
-function login(){
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', API + '/login');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function(){
-        const data = JSON.parse(xhr.responseText);
-        if(xhr.status === 200){
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.href = 'home.html';
-        } else {
-            alert(data.error);
-        }
-    };
-    xhr.send(JSON.stringify({ email, password }));
-}
-
-function register(){
-    const name = document.getElementById('regName').value;
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-    const confirm = document.getElementById('regConfirm').value;
-
-    if(password !== confirm){ alert('Passwords do not match'); return; }
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', API + '/register');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function(){
-        const data = JSON.parse(xhr.responseText);
-        if(xhr.status === 200){
-            alert('User registered successfully');
-            toggleForms();
-        } else {
-            alert(data.error);
-        }
-    };
-    xhr.send(JSON.stringify({ name, email, password }));
-}
-</script>
-
-</body>
 <footer class="text-center py-3">
     <small>&copy; 2026 Cinexus - All rights reserved</small>
 </footer>
+
+<script src="../controllers/api.js"></script>
+<script src="../controllers/authController.js"></script>
+<script>
+function toggleForms() {
+    document.getElementById('loginForm').classList.toggle('is-hidden');
+    document.getElementById('registerForm').classList.toggle('is-hidden');
+}
+</script>
+</body>
 </html>

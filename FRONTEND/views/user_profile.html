@@ -316,39 +316,11 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <script src="../controllers/api.js"></script>
+        <script src="../controllers/userController.js"></script>
         <script>
-            const API = 'http://localhost:3000/api';
-            const token = localStorage.getItem('token');
-            if (!token) { window.location.href = 'login-register.html'; }
-
-            function ajaxGet(url, cb) {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', API + url);
-                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                xhr.onload = function(){ cb(JSON.parse(xhr.responseText), xhr.status); };
-                xhr.send();
-            }
-            function ajaxPut(url, body, cb) {
-                const xhr = new XMLHttpRequest();
-                xhr.open('PUT', API + url);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                xhr.onload = function(){ cb(JSON.parse(xhr.responseText), xhr.status); };
-                xhr.send(JSON.stringify(body));
-            }
-
-            // Load user profile from backend
-            ajaxGet('/user', function(data, status) {
-                if (status !== 200) { localStorage.clear(); window.location.href = 'login-register.html'; return; }
-                document.getElementById('navAvatar').textContent = getInitials(data.name);
-                document.getElementById('profileName').textContent = data.name;
-                document.getElementById('profileEmail').textContent = data.email;
-                document.getElementById('profileBio').textContent = data.bio || 'No bio yet.';
-                document.querySelector('#personal-info .avatar').textContent = getInitials(data.name);
-                document.getElementById('inputName').value = data.name;
-                document.getElementById('inputEmail').value = data.email;
-                document.getElementById('inputBio').value = data.bio || '';
-            });
+            requireAuth();
+            loadProfile();
 
             //harcoded data for lists - in a real app this would come from the backend
             
@@ -500,7 +472,7 @@
             let deleteListModalInstance;
             let newListModalInstance;
 
-            const user = JSON.parse(localStorage.getItem('user')) || {};
+
 
             function goToMovie(movieID) {
                 window.location.href = 'movie_details.html'; // Pass the movie ID to the details page in the future
@@ -681,23 +653,6 @@
             function removeMovieFromDraft(index) {
                 editDraftMovies.splice(index, 1);
                 renderEditMoviesList();
-            }
-
-            function saveProfile() {
-                const name = document.getElementById('inputName').value.trim();
-                const email = document.getElementById('inputEmail').value.trim();
-                const bio = document.getElementById('inputBio').value.trim();
-                ajaxPut('/user', { name, email, bio }, function(data, status) {
-                    if (status === 200) {
-                        localStorage.setItem('user', JSON.stringify(data));
-                        document.getElementById('profileName').textContent = data.name;
-                        document.getElementById('profileEmail').textContent = data.email;
-                        document.getElementById('profileBio').textContent = data.bio || 'No bio yet.';
-                        document.getElementById('navAvatar').textContent = getInitials(data.name);
-                        document.querySelector('#personal-info .avatar').textContent = getInitials(data.name);
-                        bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
-                    } else { alert(data.error); }
-                });
             }
 
             document.addEventListener("DOMContentLoaded", () => {

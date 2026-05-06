@@ -13,7 +13,7 @@
     <span class="navbar-brand nav-link" onclick="window.location.href='home.html'">🎬 Cinexus</span>
     <div class="navbar-user-group">
         <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="window.location.href='user_profile.html'" title="View profile">JD</div>
-        <button class="btn btn-outline-light" onclick="cerrarSesion()">Logout</button>
+        <button class="btn btn-outline-light" onclick="logout()">Logout</button>
     </div>
 </nav>
 
@@ -47,108 +47,23 @@
 
 <footer class="text-center py-3"><small>&copy; 2026 Cinexus - All rights reserved</small></footer>
 
+<script src="../controllers/api.js"></script>
+<script src="../controllers/friendController.js"></script>
 <script>
-const API = 'http://localhost:3000/api';
-const token = localStorage.getItem('token');
-if (!token) window.location.href = 'login-register.html';
-
+requireAuth();
 const usuario = JSON.parse(localStorage.getItem('user')) || {};
-
-function getInitials(name) {
-    return (name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '??';
-}
-
 document.getElementById('navAvatar').textContent = getInitials(usuario.name);
 
-// AJAX helpers
-function ajax(method, url, body, cb) {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, API + url);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-    xhr.onload = function(){ cb(JSON.parse(xhr.responseText), xhr.status); };
-    xhr.send(body ? JSON.stringify(body) : null);
-}
-
-let sentRequests = [];
-let myFriends = [];
-
-// Load sent requests on init
-ajax('GET', '/friends/sent', null, function(data) { sentRequests = data; });
-ajax('GET', '/friends', null, function(data) { myFriends = data; });
-
 function tarjetaUsuario(u, boton) {
-    const initials = getInitials(u.name);
     return `
     <div class="tarjeta-usuario d-flex align-items-center gap-3">
-        <div class="avatar">${initials}</div>
+        <div class="avatar">${getInitials(u.name)}</div>
         <div class="flex-grow-1">
             <strong class="text-white">${u.name}</strong>
             <p class="text-secondary user-bio mb-0">${u.bio || ''}</p>
         </div>
         ${boton}
     </div>`;
-}
-
-function buscarUsuarios() {
-    const busqueda = document.getElementById('inputBusqueda').value.trim();
-    ajax('GET', '/users/search?q=' + encodeURIComponent(busqueda), null, function(results) {
-        const contenedor = document.getElementById('resultadosBusqueda');
-        if (!results.length) { contenedor.innerHTML = '<p class="text-secondary">No users found.</p>'; return; }
-
-        contenedor.innerHTML = results.map(u => {
-            const isFriend = myFriends.some(f => f.id === u.id);
-            const isSent = sentRequests.includes(u.id);
-            let boton = isFriend
-                ? `<span class="badge bg-success">Friends</span>`
-                : isSent
-                    ? `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`
-                    : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud(${u.id})">Add Friend</button>`;
-            return tarjetaUsuario(u, boton);
-        }).join('');
-    });
-}
-
-function enviarSolicitud(toId) {
-    ajax('POST', '/friends/request', { toId }, function(data, status) {
-        if (status === 200) {
-            sentRequests.push(toId);
-            buscarUsuarios();
-        }
-    });
-}
-
-function mostrarSolicitudes() {
-    ajax('GET', '/friends/requests', null, function(pending) {
-        const contenedor = document.getElementById('listaSolicitudes');
-        document.getElementById('contadorSolicitudes').textContent = pending.length || '';
-        if (!pending.length) { contenedor.innerHTML = '<p class="text-secondary">No pending requests.</p>'; return; }
-
-        contenedor.innerHTML = pending.map(u => {
-            const boton = `
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud(${u.id}, 'accept')">Accept</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud(${u.id}, 'decline')">Decline</button>
-                </div>`;
-            return tarjetaUsuario(u, boton);
-        }).join('');
-    });
-}
-
-function responderSolicitud(fromId, action) {
-    ajax('PUT', '/friends/request/' + fromId, { action }, function() {
-        mostrarSolicitudes();
-        ajax('GET', '/friends', null, function(data) { myFriends = data; });
-    });
-}
-
-function mostrarAmigos() {
-    ajax('GET', '/friends', null, function(friends) {
-        myFriends = friends;
-        const contenedor = document.getElementById('listaAmigos');
-        if (!friends.length) { contenedor.innerHTML = '<p class="text-secondary">No friends yet.</p>'; return; }
-        contenedor.innerHTML = friends.map(u => tarjetaUsuario(u, `<span class="badge bg-success">Friends</span>`)).join('');
-    });
 }
 
 function mostrarTab(tab) {
@@ -162,9 +77,7 @@ function mostrarTab(tab) {
     if (tab === 'amigos') mostrarAmigos();
 }
 
-function cerrarSesion() { localStorage.clear(); window.location.href = 'login-register.html'; }
-
-// Init
+loadFriendsData();
 mostrarSolicitudes();
 buscarUsuarios();
 </script>

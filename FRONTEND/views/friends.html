@@ -77,9 +77,10 @@ function mostrarTab(tab) {
     if (tab === 'amigos') mostrarAmigos();
 }
 
-loadFriendsData();
-mostrarSolicitudes();
-buscarUsuarios();
+loadFriendsData(function () {
+    mostrarSolicitudes();
+    buscarUsuarios();
+});
 </script>
 </body>
 </html>

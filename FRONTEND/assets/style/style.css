@@ -598,6 +598,10 @@ body.page-profile {
     border-color: var(--border-soft);
 }
 
+.page-profile .profile-danger-zone {
+    border-top: 1px solid var(--border-soft);
+}
+
 @media (max-width: 768px) {
     .page-profile .lists-layout {
         grid-template-columns: 1fr;

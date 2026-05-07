@@ -93,6 +93,7 @@ function loadMovieDetails() {
         return;
     }
 
+    
     ajax('GET', `/movies/imdb/${encodeURIComponent(imdbID)}`, null, function (movie, status) {
         if (status !== 200) {
             document.getElementById('titulo').textContent = 'Movie not found';
@@ -100,7 +101,9 @@ function loadMovieDetails() {
             return;
         }
 
+        
         tituloPelicula = movie.title || 'Unknown movie';
+        movieId = movie._id;
         document.getElementById('titulo').textContent = tituloPelicula;
         document.getElementById('meta').textContent = formatMovieMeta(movie);
         document.getElementById('descripcion').textContent = movie.plot || 'No description available.';

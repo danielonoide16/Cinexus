@@ -2,6 +2,7 @@ function mostrarResenas() {
     if (!movieId) return;
 
     ajax('GET', `/reviews/movie/${movieId}`, null, function(data, status) {
+
         const contenedor = document.getElementById('contenedorResenas');
 
         if (status !== 200) {
@@ -14,28 +15,89 @@ function mostrarResenas() {
             return;
         }
 
-        contenedor.innerHTML = data.map(r => `
-            <div class="tarjeta-resena">
-                <div class="d-flex justify-content-between">
-                    <strong class="text-white">${r.user?.name || 'Anonymous'}</strong>
-                    <small class="text-secondary">
-                        ${new Date(r.createdAt).toLocaleDateString()}
-                    </small>
-                </div>
+        contenedor.innerHTML = data.map(r => {
 
-                <div class="estrellas">
-                    ${'★'.repeat(r.rating)}
-                    ${'☆'.repeat(5 - r.rating)}
-                </div>
+            const isMine =
+                usuario &&
+                r.user &&
+                (r.user._id === usuario._id);
 
-                <p class="text-white-50 mb-0 mt-1">
-                    ${r.comment}
-                </p>
-            </div>
-        `).join('');
+            return `
+                <div class="tarjeta-resena">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div>
+                            <strong class="text-white">
+                                ${r.user?.name || 'Anonymous'}
+                            </strong>
+
+                            <div class="estrellas">
+                                ${'★'.repeat(r.rating)}
+                                ${'☆'.repeat(5 - r.rating)}
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+
+                            <small class="text-secondary d-block mb-2">
+                                ${new Date(r.createdAt).toLocaleDateString()}
+                            </small>
+
+                            ${
+                                isMine
+                                    ? `
+                                    <button
+                                        class="btn btn-sm btn-outline-danger"
+                                        onclick="openDeleteReviewModal('${r._id}')"
+                                    >
+                                        Delete
+                                    </button>
+                                    `
+                                    : ''
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <p class="text-white-50 mb-0 mt-2">
+                        ${r.comment}
+                    </p>
+
+                </div>
+            `;
+        }).join('');
     });
 }
 
+function openDeleteReviewModal(reviewId) {
+    reviewToDelete = reviewId;
+    deleteReviewModal.show();
+}
+
+function confirmDeleteReview() {
+
+    if (!reviewToDelete) return;
+
+    ajax(
+        'DELETE',
+        `/reviews/${reviewToDelete}`,
+        null,
+        function(data, status) {
+
+            if (status !== 200) {
+                alert(data?.error || 'Could not delete review.');
+                return;
+            }
+
+            deleteReviewModal.hide();
+            reviewToDelete = null;
+
+            mostrarResenas();
+        }
+    );
+}
 
 function publicarResena() {
     const texto = document.getElementById('textoResena').value.trim();

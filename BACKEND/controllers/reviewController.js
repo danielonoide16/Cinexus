@@ -14,14 +14,14 @@ exports.createOrUpdateReview = async (req, res) => {
         { user: req.user.id, movie: movieId },
         { rating, comment: comment.trim() },
         { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
-    ).populate('user', 'name avatarUrl');
+    ).populate('user', '_id name avatarUrl');
 
     res.status(201).json(review);
 };
 
 exports.getMovieReviews = async (req, res) => {
     const reviews = await Review.find({ movie: req.params.movieId })
-        .populate('user', 'name avatarUrl')
+        .populate('user', '_id name avatarUrl')
         .sort({ createdAt: -1 });
 
     res.json(reviews);
@@ -29,7 +29,7 @@ exports.getMovieReviews = async (req, res) => {
 
 exports.getMyReviews = async (req, res) => {
     const reviews = await Review.find({ user: req.user.id })
-        .populate('movie')
+        .populate('movie', '_id title imdbID')
         .sort({ createdAt: -1 });
 
     res.json(reviews);

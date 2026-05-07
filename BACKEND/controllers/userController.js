@@ -1,4 +1,7 @@
 const User = require('../models/userModel');
+const Review = require('../models/reviewModel');
+const MovieList = require('../models/movieListModel');
+const FriendRequest = require('../models/friendModel');
 
 exports.getProfile = async (req, res) => {
     const user = await User.findById(req.user.id).select('-password').populate('friends', 'name email bio avatarUrl');
@@ -63,4 +66,29 @@ exports.uploadAvatar = async (req, res) => {
     await user.save();
 
     res.json({ avatarUrl: user.avatarUrl });
+};
+
+exports.deleteAccount = async (req, res) => {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    await Promise.all([
+        Review.deleteMany({ user: userId }),
+        MovieList.deleteMany({ owner: userId }),
+        FriendRequest.deleteMany({
+            $or: [
+                { from: userId },
+                { to: userId }
+            ]
+        }),
+        User.updateMany(
+            { friends: userId },
+            { $pull: { friends: userId } }
+        ),
+        User.deleteOne({ _id: userId })
+    ]);
+
+    res.json({ message: 'Account deleted successfully' });
 };

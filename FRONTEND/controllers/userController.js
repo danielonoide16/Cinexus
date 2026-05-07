@@ -66,3 +66,32 @@ function saveProfile() {
         updateProfile();
     }
 }
+
+function deleteAccount() {
+    const deleteButton = document.getElementById('confirmDeleteAccountButton');
+
+    if (deleteButton) {
+        deleteButton.disabled = true;
+        deleteButton.textContent = 'Deleting...';
+    }
+
+    ajax('DELETE', '/users/me', null, function (data, status) {
+        if (deleteButton) {
+            deleteButton.disabled = false;
+            deleteButton.textContent = 'Confirm Account Deletion';
+        }
+
+        if (status === 200) {
+            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal'));
+            const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+
+            if (deleteModal) deleteModal.hide();
+            if (editModal) editModal.hide();
+
+            localStorage.clear();
+            window.location.href = 'login-register.html';
+        } else {
+            alert(data.error || 'Unable to delete account');
+        }
+    });
+}

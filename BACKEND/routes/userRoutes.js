@@ -16,6 +16,7 @@ const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 }, fileFilt
 
 router.get('/me', auth, (req, res, next) => userController.getProfile(req, res).catch(next));
 router.put('/me', auth, (req, res, next) => userController.updateProfile(req, res).catch(next));
+router.delete('/me', auth, (req, res, next) => userController.deleteAccount(req, res).catch(next));
 router.post('/me/avatar', auth, upload.single('avatar'), (req, res, next) => userController.uploadAvatar(req, res).catch(next));
 router.get('/search', auth, (req, res, next) => userController.searchUsers(req, res).catch(next));
 

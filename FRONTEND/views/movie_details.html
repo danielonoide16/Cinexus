@@ -229,6 +229,10 @@ function agregarALista() {
 
 function cerrarSesion() { localStorage.removeItem('user'); window.location.href = 'login-register.html'; }
 
+function goToUserProfile(userId) {
+    window.location.href = 'user_profile.html?userId=' + userId;
+}
+
 loadMovieDetails();
 cargarListas();
 </script>

@@ -27,15 +27,49 @@ function mostrarResenas() {
 
                     <div class="d-flex justify-content-between align-items-start">
 
-                        <div>
-                            <strong class="text-white">
-                                ${r.user?.name || 'Anonymous'}
-                            </strong>
+                        <div class="d-flex align-items-center gap-2">
 
-                            <div class="estrellas">
-                                ${'★'.repeat(r.rating)}
-                                ${'☆'.repeat(5 - r.rating)}
+                            ${
+                                r.user?.avatarUrl
+                                    ? `
+                                    <div
+                                        class="avatar is-clickable"
+                                        style="width:45px;height:45px;overflow:hidden;cursor:pointer;"
+                                        onclick="goToUserProfile('${r.user._id}')"
+                                    >
+                                        <img
+                                            src="${API.replace('/api','') + r.user.avatarUrl}"
+                                            alt="avatar"
+                                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                                        >
+                                    </div>
+                                    `
+                                    : `
+                                    <div
+                                        class="avatar is-clickable"
+                                        style="width:45px;height:45px;cursor:pointer;"
+                                        onclick="goToUserProfile('${r.user?._id}')"
+                                    >
+                                        ${getInitials(r.user?.name || 'A')}
+                                    </div>
+                                    `
+                            }
+
+                            <div>
+                                <strong
+                                    class="text-white"
+                                    style="cursor:pointer;"
+                                    onclick="goToUserProfile('${r.user?._id}')"
+                                >
+                                    ${r.user?.name || 'Anonymous'}
+                                </strong>
+
+                                <div class="estrellas">
+                                    ${'★'.repeat(r.rating)}
+                                    ${'☆'.repeat(5 - r.rating)}
+                                </div>
                             </div>
+
                         </div>
 
                         <div class="text-end">

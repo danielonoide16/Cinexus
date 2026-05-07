@@ -17,12 +17,18 @@ function mostrarResenas() {
 
         contenedor.innerHTML = data.map(r => {
 
-            const isMine =
-                usuario &&
-                r.user &&
-                (r.user._id === usuario._id);
+        const currentUser =
+            JSON.parse(localStorage.getItem('user'));
 
-            return `
+        const currentUserId =
+            currentUser?._id || currentUser?.id;
+
+        const isMine =
+            currentUserId &&
+            r.user &&
+            (r.user._id === currentUserId);
+
+        return `
                 <div class="tarjeta-resena">
 
                     <div class="d-flex justify-content-between align-items-start">

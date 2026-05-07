@@ -13,7 +13,7 @@ exports.createOrUpdateReview = async (req, res) => {
     const review = await Review.findOneAndUpdate(
         { user: req.user.id, movie: movieId },
         { rating, comment: comment.trim() },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
+        { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
     ).populate('user', 'name avatarUrl');
 
     res.status(201).json(review);

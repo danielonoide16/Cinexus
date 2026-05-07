@@ -67,7 +67,7 @@ exports.createMovie = async (req, res) => {
         filter,
         movieData,
         {
-            new: true,
+            returnDocument: 'after',
             upsert: true,
             setDefaultsOnInsert: true,
             runValidators: true
@@ -126,7 +126,7 @@ exports.getRecentMovies = async (req, res) => {
                     imdbID: m.imdbID
                 },
                 {
-                    new: true,
+                    returnDocument: 'after',
                     upsert: true,
                     setDefaultsOnInsert: true
                 }
@@ -225,7 +225,7 @@ exports.getMovies = async (req, res) => {
                         imdbID: m.imdbID,
                         boxOffice: toNumber(details.BoxOffice)
                     },
-                    { new: true, upsert: true, setDefaultsOnInsert: true }
+                    { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
                 );
                 savedMovies.push(movie);
             }
@@ -326,7 +326,7 @@ exports.getMovies = async (req, res) => {
                 imdbID: m.imdbID,
                 boxOffice: toNumber(details.BoxOffice)
             },
-            { new: true, upsert: true, setDefaultsOnInsert: true }
+            { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
         );
 
         savedMovies.push(movie);
@@ -414,7 +414,7 @@ exports.getMovieByImdbId = async (req, res) => {
                 type: details.Type || 'movie',
                 boxOffice: toNumber(details.BoxOffice)
             },
-            { new: true, upsert: true, setDefaultsOnInsert: true }
+            { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
         );
     }
 

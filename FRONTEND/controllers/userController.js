@@ -13,6 +13,146 @@ function loadProfile() {
     });
 }
 
+
+function loadPublicProfile(userId) {
+
+    ajax('GET', '/users/public/' + userId, null, function(data, status) {
+
+        if (status !== 200) {
+            alert('User not found');
+            window.location.href = 'home.html';
+            return;
+        }
+
+        const user = data.user;
+
+        document.getElementById('profileName').textContent = user.name || '';
+        document.getElementById('profileEmail').textContent = user.email || '';
+        document.getElementById('profileBio').textContent = user.bio || '';
+
+        // avatar principal
+        const avatar = document.querySelector('#personal-info .avatar');
+
+        if (user.avatarUrl) {
+            avatar.innerHTML = `
+                <img
+                    src="${API.replace('/api','') + user.avatarUrl}"
+                    alt="avatar"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                >
+            `;
+        } else {
+            avatar.textContent = getInitials(user.name);
+        }
+
+        // ocultar botón edit
+        const editButton = document.querySelector('#personal-info .btn-primary');
+
+        if (editButton) {
+            editButton.style.display = 'none';
+        }
+
+        // ocultar botón new list
+        const newListButton = document.querySelector('[data-bs-target="#newListModal"]');
+
+        if (newListButton) {
+            newListButton.style.display = 'none';
+        }
+
+        // ocultar botón friends
+        const friendsButton = document.getElementById('friendsNavbarButton');
+
+        if (friendsButton) {
+            friendsButton.style.display = 'none';
+        }
+
+        // cambiar títulos
+        document.querySelector('#my-activity h2').textContent =
+            `${user.name}'s Activity`;
+
+        document.querySelectorAll('.tabs li')[0].textContent =
+            'Reviews';
+
+        document.querySelectorAll('.tabs li')[1].textContent =
+            'Lists';
+
+
+        // mostrar amigos públicos
+        const publicFriendsSection = document.getElementById('public-friends-section');
+        const publicFriendsContainer = document.getElementById('publicFriendsContainer');
+
+        if (user.friends && user.friends.length > 0) {
+
+            publicFriendsSection.classList.remove('d-none');
+
+            publicFriendsContainer.innerHTML = user.friends.map(friend => `
+                <div class="tarjeta-usuario d-flex align-items-center gap-3">
+
+                    ${
+                        friend.avatarUrl
+                        ?
+                        `
+                        <div
+                            class="avatar is-clickable"
+                            style="overflow:hidden;cursor:pointer;"
+                            onclick="goToUserProfile('${friend._id}')"
+                        >
+                            <img
+                                src="${API.replace('/api','') + friend.avatarUrl}"
+                                style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                            >
+                        </div>
+                        `
+                        :
+                        `
+                        <div
+                            class="avatar is-clickable"
+                            style="cursor:pointer;"
+                            onclick="goToUserProfile('${friend._id}')"
+                        >
+                            ${getInitials(friend.name)}
+                        </div>
+                        `
+                    }
+
+                    <div class="flex-grow-1">
+                        <strong
+                            class="text-white"
+                            style="cursor:pointer;"
+                            onclick="goToUserProfile('${friend._id}')"
+                        >
+                            ${friend.name}
+                        </strong>
+
+                        <p class="text-secondary user-bio mb-0">
+                            ${friend.bio || ''}
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+
+        } else {
+
+            publicFriendsSection.classList.remove('d-none');
+
+            publicFriendsContainer.innerHTML = `
+                <p class="text-secondary mb-0">
+                    This user has no friends added yet.
+                </p>
+            `;
+        }
+
+        //mostrar avatar del usuario que inició sesión en el navbar
+        const loggedInUser = JSON.parse(localStorage.getItem('user'));
+        renderAvatar(document.getElementById('navAvatar'), loggedInUser);
+
+        // mostrar reviews y listas del perfil público
+
+        renderPublicReviews(data.reviews || []);
+        renderPublicLists(data.lists || []);
+    });
+}
+
 function renderAvatar(el, user) {
     if (user.avatarUrl) {
         el.innerHTML = `<img src="${API.replace('/api','') + user.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;

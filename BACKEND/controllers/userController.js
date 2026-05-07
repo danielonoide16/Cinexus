@@ -92,3 +92,45 @@ exports.deleteAccount = async (req, res) => {
 
     res.json({ message: 'Account deleted successfully' });
 };
+
+exports.getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+            .select('name email bio avatarUrl friends')
+            .populate('friends', 'name bio avatarUrl');
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(user);
+
+    } catch (error) {
+        res.status(500).json({ error: 'Error loading user profile' });
+    }
+};
+
+
+exports.getPublicProfile = async (req, res) => {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId)
+        .select('name email bio avatarUrl friends')
+        .populate('friends', 'name bio avatarUrl');
+
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    const reviews = await Review.find({ userId })
+        .populate('movieId')
+        .sort({ createdAt: -1 });
+
+    const movieLists = await MovieList.find({ owner: userId });
+
+    res.json({
+        user,
+        reviews,
+        movieLists
+    });
+};

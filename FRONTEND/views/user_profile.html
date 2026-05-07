@@ -22,7 +22,13 @@
             <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
             <div class="navbar-user-group">
                 <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile" style="overflow:hidden;">JD</div>
-                <a href="friends.html" class="btn btn-outline-secondary me-2">Friends</a>
+                <a
+                    id="friendsNavbarButton"
+                    href="friends.html"
+                    class="btn btn-outline-secondary me-2"
+                >
+                    Friends
+                </a>
                 <button class="btn btn-outline-light" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -38,6 +44,16 @@
                         <p><strong>Who am I?:</strong> <span id="profileBio">I'm a film enthusiast who loves to watch and review movies.</span></p>
                     </div>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit</button>
+                </div>
+            </section>
+
+            <!-- Public friends list (only visible on visited profile) -->
+            <section id="public-friends-section" class="mb-4 d-none">
+                <div class="card p-3">
+                    <h3 class="mb-3">Friends</h3>
+
+                    <div id="publicFriendsContainer" class="d-flex flex-column gap-3">
+                    </div>
                 </div>
             </section>
 
@@ -356,8 +372,23 @@
         <script src="../controllers/reviewController.js"></script>
         <script>
             requireAuth();
-            loadProfile();
-            loadMyReviews();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const profileUserId = urlParams.get('userId');
+
+            const currentUser = JSON.parse(localStorage.getItem('user')) || {};
+
+            const isOwnProfile =
+                !profileUserId ||
+                profileUserId === currentUser.id ||
+                profileUserId === currentUser._id;
+
+            if (isOwnProfile) {
+                loadProfile();
+                loadMyReviews();
+            } else {
+                loadPublicProfile(profileUserId);
+            }
 
             let myLists = [];
             let selectedListId = null;
@@ -416,10 +447,12 @@
                     <div class="list-card ${list._id === selectedListId ? 'active' : ''}" data-list-id="${list._id}" onclick="selectListById('${list._id}')">
                         <div class="list-header">
                             <h5>${escapeHtml(list.name)}</h5>
+                            ${isOwnProfile ? `
                             <div class="list-actions">
                                 <span title="Edit list" onclick="editList(event, '${list._id}')">✏️</span>
                                 <span title="Delete list" onclick="deleteList(event, '${list._id}')">🗑️</span>
                             </div>
+                            ` : ''}
                         </div>
                         <p>${escapeHtml(list.description || '')}</p>
                         <span class="badge">${list.movies.length} ${list.movies.length === 1 ? 'movie' : 'movies'}</span>
@@ -561,6 +594,25 @@
                         alert(data.error || 'Error deleting list');
                     }
                 });
+            }
+
+
+            function renderPublicLists(lists) {
+
+                myLists = lists || [];
+
+                renderListsSidebar();
+
+                if (myLists.length) {
+                    selectListById(myLists[0]._id);
+                } else {
+                    document.getElementById('listContent').innerHTML =
+                        '<p class="text-secondary">No lists yet.</p>';
+                }
+            }
+
+            function goToUserProfile(userId) {
+                window.location.href = 'user_profile.html?userId=' + userId;
             }
 
             document.addEventListener("DOMContentLoaded", () => {

@@ -176,3 +176,56 @@ function loadMyReviews() {
         reviewsTab.textContent = `My Reviews (${data.length})`;
     });
 }
+
+
+function renderPublicReviews(reviews) {
+
+    const container = document.getElementById('myReviewsContainer');
+
+    if (!reviews.length) {
+        container.innerHTML = `
+            <p class="text-secondary">
+                No reviews yet.
+            </p>
+        `;
+        return;
+    }
+
+    container.innerHTML = reviews.map(review => {
+
+        const movie = review.movieId;
+
+        return `
+            <div class="review-card mb-3">
+                <div class="d-flex gap-3">
+
+                    <img
+                        src="${movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png'}"
+                        style="width:80px;border-radius:8px;cursor:pointer;"
+                        onclick="goToMovie('${movie.imdbID}')"
+                    >
+
+                    <div class="flex-grow-1">
+
+                        <h5
+                            style="cursor:pointer;"
+                            onclick="goToMovie('${movie.imdbID}')"
+                        >
+                            ${movie.title}
+                        </h5>
+
+                        <div class="mb-2">
+                            ⭐ ${review.rating}/10
+                        </div>
+
+                        <p class="mb-0">
+                            ${review.comment || ''}
+                        </p>
+
+                    </div>
+
+                </div>
+            </div>
+        `;
+    }).join('');
+}

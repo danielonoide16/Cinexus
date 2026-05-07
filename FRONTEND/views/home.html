@@ -13,7 +13,7 @@
 <nav class="navbar navbar-dark bg-dark px-4">
     <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
     <div class="navbar-user-group">
-        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile">JD</div>
+        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile" style="overflow:hidden;">JD</div>
         <button class="btn btn-outline-light" onclick="logout()">Logout</button>
     </div>
 </nav>
@@ -65,7 +65,14 @@
 <script>
 requireAuth();
 const user = JSON.parse(localStorage.getItem('user')) || {};
-document.getElementById('navAvatar').textContent = getInitials(user.name);
+(function() {
+    const nav = document.getElementById('navAvatar');
+    if (user.avatarUrl) {
+        nav.innerHTML = `<img src="${API.replace('/api','') + user.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+        nav.textContent = getInitials(user.name);
+    }
+})();
 
 
 function loadImage(url) {

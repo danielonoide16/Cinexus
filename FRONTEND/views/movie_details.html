@@ -12,7 +12,7 @@
 <nav class="navbar navbar-dark bg-dark px-4">
     <span class="navbar-brand nav-link" onclick="window.location.href='home.html'">🎬 Cinexus</span>
     <div class="navbar-user-group">
-        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="window.location.href='user_profile.html'" title="View profile">JD</div>
+        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="window.location.href='user_profile.html'" title="View profile" style="overflow:hidden;">JD</div>
         <button class="btn btn-outline-light" onclick="cerrarSesion()">Logout</button>
     </div>
 </nav>
@@ -89,6 +89,12 @@ function getInitials(name) {
 }
 
 document.getElementById('navAvatar').textContent = getInitials(usuario.name);
+(function() {
+    const nav = document.getElementById('navAvatar');
+    if (usuario.avatarUrl) {
+        nav.innerHTML = `<img src="http://localhost:3000${usuario.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    }
+})();
 
 // Hardcoded movies
 const peliculas = {

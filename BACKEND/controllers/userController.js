@@ -52,3 +52,15 @@ exports.searchUsers = async (req, res) => {
         }))
     );
 };
+
+exports.uploadAvatar = async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.avatarUrl = '/uploads/' + req.file.filename;
+    await user.save();
+
+    res.json({ avatarUrl: user.avatarUrl });
+};

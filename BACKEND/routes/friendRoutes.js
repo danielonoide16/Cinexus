@@ -8,6 +8,7 @@ router.get('/requests', auth, (req, res, next) => friendController.getRequests(r
 router.put('/request/:fromId', auth, (req, res, next) => friendController.handleRequest(req, res).catch(next));
 router.get('/', auth, (req, res, next) => friendController.getFriends(req, res).catch(next));
 router.get('/sent', auth, (req, res, next) => friendController.getSentRequests(req, res).catch(next));
+router.get('/received', auth, (req, res, next) => friendController.getReceivedRequests(req, res).catch(next));
 router.delete('/:friendId', auth, (req, res, next) => friendController.removeFriend(req, res).catch(next));
 
 module.exports = router;

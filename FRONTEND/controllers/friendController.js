@@ -1,12 +1,18 @@
 let sentRequests = [];
+let receivedRequests = [];
 let myFriends = [];
+let dataReady = false;
 
-function loadFriendsData() {
-    ajax('GET', '/friends/sent', null, function (data) { sentRequests = data; });
-    ajax('GET', '/friends', null, function (data) { myFriends = data; });
+function loadFriendsData(cb) {
+    let pending = 3;
+    function done() { if (--pending === 0) { dataReady = true; if (cb) cb(); } }
+    ajax('GET', '/friends/sent', null, function (data) { sentRequests = data; done(); });
+    ajax('GET', '/friends/received', null, function (data) { receivedRequests = data; done(); });
+    ajax('GET', '/friends', null, function (data) { myFriends = data; done(); });
 }
 
 function buscarUsuarios() {
+    if (!dataReady) return;
     const busqueda = document.getElementById('inputBusqueda').value.trim();
     ajax('GET', '/users/search?q=' + encodeURIComponent(busqueda), null, function (results) {
         const contenedor = document.getElementById('resultadosBusqueda');
@@ -15,11 +21,20 @@ function buscarUsuarios() {
         contenedor.innerHTML = results.map(u => {
             const isFriend = myFriends.some(f => f.id === u.id);
             const isSent = sentRequests.includes(u.id);
-            let boton = isFriend
-                ? `<span class="badge bg-success">Friends</span>`
-                : isSent
-                    ? `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`
-                    : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.id}')">Add Friend</button>`;
+            const isReceived = receivedRequests.includes(u.id);
+            let boton;
+            if (isFriend) {
+                boton = `<span class="badge bg-success">Friends</span>`;
+            } else if (isReceived) {
+                boton = `<div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud('${u.id}', 'accept')">Accept</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud('${u.id}', 'decline')">Decline</button>
+                </div>`;
+            } else if (isSent) {
+                boton = `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`;
+            } else {
+                boton = `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.id}')">Add Friend</button>`;
+            }
             return tarjetaUsuario(u, boton);
         }).join('');
     });
@@ -53,8 +68,17 @@ function mostrarSolicitudes() {
 
 function responderSolicitud(fromId, action) {
     ajax('PUT', '/friends/request/' + fromId, { action }, function () {
-        mostrarSolicitudes();
-        ajax('GET', '/friends', null, function (data) { myFriends = data; });
+        receivedRequests = receivedRequests.filter(id => id !== fromId);
+        if (action === 'accept') {
+            ajax('GET', '/friends', null, function (data) {
+                myFriends = data;
+                mostrarSolicitudes();
+                buscarUsuarios();
+            });
+        } else {
+            mostrarSolicitudes();
+            buscarUsuarios();
+        }
     });
 }
 

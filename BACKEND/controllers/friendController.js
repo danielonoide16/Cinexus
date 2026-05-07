@@ -95,6 +95,15 @@ exports.getSentRequests = async (req, res) => {
     res.json(sent.map(request => request.to.toString()));
 };
 
+exports.getReceivedRequests = async (req, res) => {
+    const received = await FriendRequest.find({
+        to: req.user.id,
+        status: 'pending'
+    }).select('from');
+
+    res.json(received.map(request => request.from.toString()));
+};
+
 exports.removeFriend = async (req, res) => {
     const { friendId } = req.params;
 

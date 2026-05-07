@@ -24,7 +24,7 @@
 
     <div class="d-flex justify-content-center mt-3">
         <input id="searchInput" type="text" class="form-control w-50 me-2" placeholder="Search movie...">
-        <button class="btn btn-purple" onclick="renderMovies()">Search</button>
+        <button class="btn btn-purple" onclick="renderMovies(1)">Search</button>
     </div>
 </section>
 
@@ -39,19 +39,44 @@
         <p class="mb-0">Filters</p>
     </div>
     <!-- FILTROS -->
-    <div class="d-flex gap-3 mb-4">
-        <select id="genreFilter" class="form-select w-auto" onchange="renderMovies()">
+    <div class="d-flex gap-3 mb-4 flex-wrap">
+        <select id="genreFilter" class="form-select w-auto" onchange="renderMovies(1)">
             <option value="">All Genres</option>
-            <option value="Acción">Action</option>
+            <option value="Action">Action</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Animation">Animation</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Crime">Crime</option>
             <option value="Drama">Drama</option>
-            <option value="Comedia">Comedy</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Horror">Horror</option>
+            <option value="Romance">Romance</option>
+            <option value="Sci-Fi">Sci-Fi</option>
+            <option value="Thriller">Thriller</option>
         </select>
 
-        <select id="yearFilter" class="form-select w-auto" onchange="renderMovies()">
-            <option value="">All Years</option>
+        <select id="yearFilter" class="form-select w-auto" onchange="renderMovies(1)">
+            <option value="all" selected>All Years</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
             <option value="2024">2024</option>
             <option value="2023">2023</option>
             <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2013">2013</option>
+            <option value="2012">2012</option>
+            <option value="2011">2011</option>
+            <option value="2010">2010</option>
+            <option value="2000">2000</option>
+            <option value="1990">1990</option>
+            <option value="1980">1980</option>
         </select>
     </div>
 
@@ -59,56 +84,120 @@
 
     <div id="moviesContainer" class="row g-4"></div>
 
+    <div id="paginationContainer" class="d-flex justify-content-center align-items-center gap-3 mt-4 text-white">
+        <button id="prevPageBtn" class="btn btn-outline-light btn-sm" onclick="changePage(-1)">Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextPageBtn" class="btn btn-outline-light btn-sm" onclick="changePage(1)">Next</button>
+    </div>
+
 </div>
 
 <script src="../controllers/api.js"></script>
 <script>
 requireAuth();
 const user = JSON.parse(localStorage.getItem('user')) || {};
+let currentPage = 1;
+const PAGE_SIZE = 12;
 document.getElementById('navAvatar').textContent = getInitials(user.name);
 
-// DATA HARDCODEADA
-const movies = [
-    {title: "Project Hail Mary", genre: "Sci-fi", year: "2026", img: "https://m.media-amazon.com/images/M/MV5BNTkwNzJiYTctNzI3NC00NjE1LTlhYjktY2Q5MTdmMWFmNzcxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"},
-    {title: "Drama", genre: "Drama", year: "2026", img: "https://m.media-amazon.com/images/M/MV5BMTcwOGZhYmItYTg3ZS00NjUwLWJiMmQtMjU5YjEwYWY0NmNkXkEyXkFqcGc@._V1_.jpg"},
-    {title: "Mercy", genre: "Thriller", year: "2026", img: "https://www.sonypictures.co.uk/sites/unitedkingdom/files/2025-12/2717_SP_MERCY_Poster_1sheet_Dated_1mb.jpg"},
-    {title: "Zootopia 2", genre: "Comedy", year: "2025", img: "https://m.media-amazon.com/images/M/MV5BYjg1Mjc3MjQtMTZjNy00YWVlLWFhMWEtMWI3ZTgxYjJmNmRlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"},
-];
 
-// RENDER
-function renderMovies(){
-    const genre = document.getElementById('genreFilter').value;
-    const year = document.getElementById('yearFilter').value;
-    const search = document.getElementById('searchInput').value.toLowerCase();
+function loadImage(url) {
+    return new Promise(resolve => {
+        const img = new Image();
 
-    const container = document.getElementById('moviesContainer');
-    container.innerHTML = "";
+        img.onload = () => {
+            resolve(true);  
+        };
 
-    const filtered = movies.filter(m => {
-        return (!genre || m.genre === genre) &&
-               (!year || m.year === year) &&
-               (!search || m.title.toLowerCase().includes(search));
-    });
+        img.onerror = () => resolve(false);
 
-    if(filtered.length === 0){
-        container.innerHTML = "<p class='text-white'>No hay resultados</p>";
-        return;
-    }
-
-    filtered.forEach(m => {
-        container.innerHTML += `
-        <div class="col-md-3">
-            <div class="movie-card" onclick="window.location.href='movie_details.html?movie='+encodeURIComponent('${m.title}')">
-                <img src="${m.img}" class="w-100">
-                <div class="p-2 text-white">
-                    <strong>${m.title}</strong><br>
-                    <small>${m.genre} | ${m.year}</small>
-                </div>
-            </div>
-        </div>
-        `;
+        img.src = url;
     });
 }
+
+async function filterValidImages(movies) {
+    const checks = await Promise.all(
+        movies.map(async m => {
+            if (!m.poster) return null;
+
+            const isValid = await loadImage(m.poster);
+            return isValid ? m : null;
+        })
+    );
+
+    return checks.filter(Boolean);
+}
+
+function updatePagination(pagination) {
+    document.getElementById('pageInfo').textContent = `Page ${pagination.page} of ${pagination.totalPages}`;
+    document.getElementById('prevPageBtn').disabled = !pagination.hasPrev;
+    document.getElementById('nextPageBtn').disabled = !pagination.hasNext;
+}
+
+async function renderMovies(page = 1) {
+    currentPage = page;
+    const search = document.getElementById('searchInput').value.trim();
+    const genre = document.getElementById('genreFilter').value;
+    const year = document.getElementById('yearFilter').value.trim() || 'all';
+
+    let url = '/movies?';
+
+    if (search) url += `q=${encodeURIComponent(search)}&`;
+    if (genre) url += `genre=${encodeURIComponent(genre)}&`;
+    if (year && year !== 'all') {
+        url += `year=${encodeURIComponent(year)}&`;
+    }
+    url += `page=${encodeURIComponent(page)}&limit=${encodeURIComponent(PAGE_SIZE)}&`;
+
+    ajax('GET', url, null, async function (data, status) {
+        const container = document.getElementById('moviesContainer');
+        container.innerHTML = '';
+
+        if (status !== 200) {
+            container.innerHTML = "<p class='text-white'>Error loading movies</p>";
+            return;
+        }
+
+        const movies = Array.isArray(data) ? data : (data.items || []);
+        const pagination = data.pagination || { page: 1, totalPages: 1, hasPrev: false, hasNext: false };
+
+        if (!movies.length) {
+            container.innerHTML = "<p class='text-white'>No results</p>";
+            updatePagination(pagination);
+            return;
+        }
+
+        const validMovies = await filterValidImages(movies);
+
+        validMovies.forEach(m => {
+            const posterUrl = m.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
+
+            container.innerHTML += `
+            <div class="col-md-3">
+                <div class="movie-card" onclick="goToMovie('${m.imdbID}')">
+                    <img src="${posterUrl}" class="w-100">
+                    <div class="p-2 text-white">
+                        <strong>${m.title}</strong><br>
+                        <small>${m.year || ''}${m.rated ? ` • ${m.rated}` : ''}${m.runtime ? ` • ${m.runtime} min` : ''}</small>
+                    </div>
+                </div>
+            </div>
+            `;
+        });
+
+        updatePagination(pagination);
+    });
+}
+
+function changePage(delta) {
+    const nextPage = Math.max(1, currentPage + delta);
+    renderMovies(nextPage);
+}
+
+function goToMovie(imdbID) {
+    window.location.href = 'movie_details.html?imdbID=' + imdbID;
+}
+
 
 // INIT
 renderMovies();

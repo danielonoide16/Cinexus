@@ -21,7 +21,7 @@
         <nav class="navbar navbar-dark bg-dark px-4">
             <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
             <div class="navbar-user-group">
-                <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile">JD</div>
+                <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile" style="overflow:hidden;">JD</div>
                 <a href="friends.html" class="btn btn-outline-secondary me-2">Friends</a>
                 <button class="btn btn-outline-light" onclick="logout()">Logout</button>
             </div>
@@ -31,7 +31,7 @@
             <!-- Personal Information -->
             <section id="personal-info" class="mb-4">
                 <div class="card d-flex flex-row align-items-center">
-                    <div class="avatar">JD</div>
+                    <div class="avatar" style="overflow:hidden;">JD</div>
                     <div class="details flex-grow-1">
                         <p><strong>Name:</strong> <span id="profileName">Jhon Doe</span></p>
                         <p><strong>Email:</strong> <span id="profileEmail">jhon.doe@example.com</span></p>
@@ -146,7 +146,7 @@
                             
                             <div class="mb-3">
                                 <label class="form-label">Profile Picture</label>
-                                <input class="form-control" type="file" id="inputAvatar">
+                                <input class="form-control" type="file" id="inputAvatar" accept="image/*">
                             </div>
 
                             <div class="profile-danger-zone mt-4 pt-3">

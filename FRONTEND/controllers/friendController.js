@@ -1,11 +1,15 @@
 let sentRequests = [];
+let receivedRequests = [];
 let myFriends = [];
+let dataReady = false;
 
 function getUserId(user) {
     return String(user?.id || user?._id || user || '');
 }
 
-function loadFriendsData(callback) {
+function loadFriendsData(cbcallback) {
+    let pending = 3;
+    function done() { if (--pending === 0) { dataReady = true; if (cb) cb(); } }
     let pendingRequestsLoaded = false;
     let friendsLoaded = false;
 
@@ -19,30 +23,40 @@ function loadFriendsData(callback) {
         sentRequests = (data || []).map(getUserId);
         pendingRequestsLoaded = true;
         finish();
-    });
+    done(); });
+    ajax('GET', '/friends/received', null, function (data) { receivedRequests = data; done(); });
 
     ajax('GET', '/friends', null, function (data) {
         myFriends = data || [];
         friendsLoaded = true;
         finish();
-    });
+    done(); });
 }
 
 function buscarUsuarios() {
+    if (!dataReady) return;
     const busqueda = document.getElementById('inputBusqueda').value.trim();
     ajax('GET', '/users/search?q=' + encodeURIComponent(busqueda), null, function (results) {
         const contenedor = document.getElementById('resultadosBusqueda');
-        const visibles = (results || []).filter(u => {
-            const userId = getUserId(u);
-            const isFriend = myFriends.some(f => getUserId(f) === userId);
-            const isSent = sentRequests.includes(userId);
-            return !isFriend && !isSent;
-        });
+        if (!results.length) { contenedor.innerHTML = '<p class="text-secondary">No users found.</p>'; return; }
 
-        if (!visibles.length) { contenedor.innerHTML = '<p class="text-secondary">No users found.</p>'; return; }
-
-        contenedor.innerHTML = visibles.map(u => {
-            let boton = `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${getUserId(u)}')">Add Friend</button>`;
+        contenedor.innerHTML = results.map(u => {
+            const isFriend = myFriends.some(f => f.id === u.id);
+            const isSent = sentRequests.includes(u.id);
+            const isReceived = receivedRequests.includes(u.id);
+            let boton;
+            if (isFriend) {
+                boton = `<span class="badge bg-success">Friends</span>`;
+            } else if (isReceived) {
+                boton = `<div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud('${u.id}', 'accept')">Accept</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud('${u.id}', 'decline')">Decline</button>
+                </div>`;
+            } else if (isSent) {
+                boton = `<button class="btn btn-sm btn-secondary" disabled>Request sent</button>`;
+            } else {
+                boton = `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${u.id}')">Add Friend</button>`;
+            }
             return tarjetaUsuario(u, boton);
         }).join('');
     });
@@ -78,8 +92,17 @@ function mostrarSolicitudes() {
 
 function responderSolicitud(fromId, action) {
     ajax('PUT', '/friends/request/' + fromId, { action }, function () {
-        mostrarSolicitudes();
-        loadFriendsData(buscarUsuarios);
+        receivedRequests = receivedRequests.filter(id => id !== fromId);
+        if (action === 'accept') {
+            ajax('GET', '/friends', null, function (data) {
+                myFriends = data;
+                mostrarSolicitudes();
+                buscarUsuarios();
+            });
+        } else {
+            mostrarSolicitudes();
+            buscarUsuarios();
+        }
     });
 }
 

@@ -77,6 +77,7 @@
 <footer class="text-center py-3"><small>&copy; 2026 Cinexus - All rights reserved</small></footer>
 
 <script src="../controllers/api.js"></script>
+<script src="../controllers/movieController.js"></script>
 <script>
 const usuario = JSON.parse(localStorage.getItem('user'));
 if (!usuario) window.location.href = 'login-register.html';
@@ -121,41 +122,6 @@ function formatMovieMeta(movie) {
     if (movie.rated) parts.push(movie.rated);
     if (movie.runtime) parts.push(`${movie.runtime} min`);
     return parts.join(' | ');
-}
-
-function loadMovieDetails() {
-    if (!imdbID) {
-        document.getElementById('titulo').textContent = 'Movie not found';
-        document.getElementById('descripcion').textContent = 'Missing imdbID in URL.';
-        return;
-    }
-
-    ajax('GET', `/movies/imdb/${encodeURIComponent(imdbID)}`, null, function (movie, status) {
-        if (status !== 200) {
-            document.getElementById('titulo').textContent = 'Movie not found';
-            document.getElementById('descripcion').textContent = 'Could not load movie details.';
-            return;
-        }
-
-        tituloPelicula = movie.title || 'Unknown movie';
-        document.getElementById('titulo').textContent = tituloPelicula;
-        document.getElementById('meta').textContent = formatMovieMeta(movie);
-        document.getElementById('descripcion').textContent = movie.plot || 'No description available.';
-        document.getElementById('poster').src = movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
-        document.getElementById('poster').alt = tituloPelicula;
-
-        const trailerFrame = document.getElementById('trailerFrame');
-        const trailerMessage = document.getElementById('trailerMessage');
-        if (movie.trailer && movie.trailer.url) {
-            trailerFrame.src = movie.trailer.url;
-            trailerMessage.textContent = movie.trailer.title ? `Trailer: ${movie.trailer.title}` : '';
-        } else {
-            trailerFrame.removeAttribute('src');
-            trailerMessage.textContent = 'Trailer not available right now.';
-        }
-
-        mostrarResenas();
-    });
 }
 
 // Star selector

@@ -7,6 +7,8 @@ router.get('/me', auth, (req, res, next) => movieListController.getMyLists(req, 
 router.get('/:id', (req, res, next) => movieListController.getListById(req, res).catch(next));
 router.post('/', auth, (req, res, next) => movieListController.createList(req, res).catch(next));
 router.put('/:id', auth, (req, res, next) => movieListController.updateList(req, res).catch(next));
+router.post('/:id/movies', auth, (req, res, next) => movieListController.addMovieToList(req, res).catch(next));
+router.delete('/:id/movies/:movieId', auth, (req, res, next) => movieListController.removeMovieFromList(req, res).catch(next));
 router.delete('/:id', auth, (req, res, next) => movieListController.deleteList(req, res).catch(next));
 
 module.exports = router;

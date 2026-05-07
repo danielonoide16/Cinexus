@@ -47,8 +47,8 @@
             <div class="card p-3">
                 <h2 class="mb-3">My Activity</h2>
                 <ul class="tabs list-unstyled">
-                    <li class="active" onclick="showTab('reviews')">My Reviews (2)</li>
-                    <li onclick="showTab('lists')">My Lists (3)</li>
+                    <li class="active" onclick="showTab('reviews')">My Reviews</li>
+                    <li onclick="showTab('lists')">My Lists</li>
                 </ul>
 
                 <!-- My Reviews -->
@@ -359,164 +359,111 @@
             loadProfile();
             loadMyReviews();
 
-
-            let selectedListId = "classics";
+            let myLists = [];
+            let selectedListId = null;
             let editingListId = null;
             let deletingListId = null;
             let editDraftMovies = [];
             let editListModalInstance;
             let deleteListModalInstance;
             let newListModalInstance;
-            
 
-            function goToMovie(imdbID) {
-                window.location.href =
-                    'movie_details.html?imdbID=' + imdbID;
-            }
+            function goToMovie(imdbID) { window.location.href = 'movie_details.html?imdbID=' + imdbID; }
+            function goToProfile() { window.location.href = 'user_profile.html'; }
+            function logout() { localStorage.clear(); window.location.href = 'login-register.html'; }
+            function goToHome() { window.location.href = 'home.html'; }
 
-            function goToProfile() {
-                window.location.href = 'user_profile.html';
-            }
-
-            function logout() {
-                localStorage.clear();
-                window.location.href = 'login-register.html';
-            }
-            function goToHome(){
-                window.location.href = 'home.html';
-            }
-            function getInitials(name) {
-                return (name || '')
-                    .trim()
-                    .split(/\s+/)
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map(part => part[0].toUpperCase())
-                    .join('') || 'JD';
-            }
             function showTab(tab) {
                 const reviews = document.getElementById("reviews-section");
                 const lists = document.getElementById("lists-section");
                 const tabs = document.querySelectorAll(".tabs li");
-
                 tabs.forEach(t => t.classList.remove("active"));
-
                 if (tab === "reviews") {
-                    reviews.classList.remove("d-none");
-                    lists.classList.add("d-none");
-                    tabs[0].classList.add("active");
+                    reviews.classList.remove("d-none"); lists.classList.add("d-none"); tabs[0].classList.add("active");
                 } else {
-                    reviews.classList.add("d-none");
-                    lists.classList.remove("d-none");
-                    tabs[1].classList.add("active");
+                    reviews.classList.add("d-none"); lists.classList.remove("d-none"); tabs[1].classList.add("active");
+                    loadMyLists();
                 }
-            }
-            function escapeHtml(value) {
-                return String(value)
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#39;");
             }
 
-            function updateListsTabLabel() {
-                const listTab = document.querySelectorAll(".tabs li")[1];
-                if (listTab) {
-                    listTab.textContent = `My Lists (${Object.keys(listData).length})`;
-                }
+            function escapeHtml(value) {
+                return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+            }
+
+            function getListById(id) { return myLists.find(l => l._id === id); }
+
+            function loadMyLists() {
+                ajax('GET', '/lists/me', null, function(data, status) {
+                    if (status !== 200) return;
+                    myLists = data;
+                    renderListsSidebar();
+                    if (selectedListId && getListById(selectedListId)) {
+                        renderListContent(selectedListId);
+                    } else if (myLists.length) {
+                        selectListById(myLists[0]._id);
+                    } else {
+                        document.getElementById('listContent').innerHTML = '<p class="text-secondary">No lists yet. Create one!</p>';
+                    }
+                });
             }
 
             function renderListsSidebar() {
                 const container = document.getElementById("listsContainer");
-                const entries = Object.entries(listData);
+                const listTab = document.querySelectorAll(".tabs li")[1];
+                if (listTab) listTab.textContent = `My Lists (${myLists.length})`;
 
-                container.innerHTML = entries.map(([listId, listEntry]) => `
-                    <div class="list-card ${listId === selectedListId ? "active" : ""}" data-list-id="${listId}" onclick="selectListById('${listId}')">
+                container.innerHTML = myLists.map(list => `
+                    <div class="list-card ${list._id === selectedListId ? 'active' : ''}" data-list-id="${list._id}" onclick="selectListById('${list._id}')">
                         <div class="list-header">
-                            <h5>${escapeHtml(listEntry.name)}</h5>
+                            <h5>${escapeHtml(list.name)}</h5>
                             <div class="list-actions">
-                                <span title="Edit list" onclick="editList(event, '${listId}')">✏️</span>
-                                <span title="Delete list" onclick="deleteList(event, '${listId}')">🗑️</span>
+                                <span title="Edit list" onclick="editList(event, '${list._id}')">✏️</span>
+                                <span title="Delete list" onclick="deleteList(event, '${list._id}')">🗑️</span>
                             </div>
                         </div>
-                        <p>${escapeHtml(listEntry.description)}</p>
-                        <span class="badge">${listEntry.movies.length} ${listEntry.movies.length === 1 ? "movie" : "movies"}</span>
+                        <p>${escapeHtml(list.description || '')}</p>
+                        <span class="badge">${list.movies.length} ${list.movies.length === 1 ? 'movie' : 'movies'}</span>
                     </div>
-                `).join("");
-
-                updateListsTabLabel();
+                `).join('');
             }
 
             function renderListContent(listId) {
                 const content = document.getElementById("listContent");
-                const listEntry = listData[listId];
+                const list = getListById(listId);
+                if (!list) { content.innerHTML = '<p class="text-secondary">Select a list to view its content</p>'; return; }
 
-                if (!listEntry) {
-                    content.innerHTML = '<p class="text-secondary">Select a list to view its content</p>';
-                    return;
-                }
-
-                const badge = `${listEntry.movies.length} ${listEntry.movies.length === 1 ? "movie" : "movies"}`;
-
-                if (listEntry?.movies?.length) {
-                    content.innerHTML = `
-                        <div class="list-detail">
-                            <div class="list-detail-header">
-                                <div>
-                                    <h5>${escapeHtml(listEntry.name)}</h5>
-                                    <p>${escapeHtml(listEntry.description)}</p>
-                                </div>
-                                <span class="list-meta-chip">${badge}</span>
-                            </div>
-                            <div class="movie-grid">
-                                ${listEntry.movies.map(movie => `
-                                    <article class="movie-highlight-card" onclick="goToMovie('${movie.title.replace(/'/g, "\\'")}')">
-                                        <img class="movie-poster" src="${movie.poster}" alt="Poster of ${movie.title}">
-                                        <div class="movie-info">
-                                            <div class="movie-title-row">
-                                                <div>
-                                                    <h6>${movie.title}</h6>
-                                                    <div class="movie-subtitle">${movie.year} • ${movie.rated} • ${movie.runtime}</div>
-                                                </div>
-                                                <div class="movie-score">
-                                                    <strong>${movie.imdbRating}/10</strong>
-                                                    <span>IMDb</span>
-                                                </div>
-                                            </div>
-                                            <div class="movie-tags">
-                                                <span>${movie.genre}</span>
-                                                <span>${movie.awards}</span>
-                                                <span>Box office ${movie.boxOffice}</span>
-                                            </div>
-                                            <div class="movie-details">
-                                                <div><strong>Director:</strong> ${movie.director}</div>
-                                                <div><strong>Audience:</strong> ${movie.rated}</div>
-                                            </div>
-                                            <p class="movie-plot">${movie.plot}</p>
-                                        </div>
-                                    </article>
-                                `).join("")}
-                            </div>
-                        </div>
-                    `;
+                if (!list.movies.length) {
+                    content.innerHTML = `<div class="simple-list"><h5>${escapeHtml(list.name)}</h5><p>${escapeHtml(list.description||'')}</p><p class="mb-0 text-secondary">This list does not contain any movies right now.</p></div>`;
                     return;
                 }
 
                 content.innerHTML = `
-                    <div class="simple-list">
-                        <h5>${escapeHtml(listEntry.name)}</h5>
-                        <p>${escapeHtml(listEntry.description)}</p>
-                        <p class="mb-0 text-secondary">This list does not contain any movies right now.</p>
+                    <div class="list-detail">
+                        <div class="list-detail-header">
+                            <div><h5>${escapeHtml(list.name)}</h5><p>${escapeHtml(list.description||'')}</p></div>
+                            <span class="list-meta-chip">${list.movies.length} ${list.movies.length===1?'movie':'movies'}</span>
+                        </div>
+                        <div class="movie-grid">
+                            ${list.movies.map(movie => `
+                                <article class="movie-highlight-card" onclick="goToMovie('${escapeHtml(movie.imdbID)}')">
+                                    <img class="movie-poster" src="${movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png'}" alt="${escapeHtml(movie.title)}">
+                                    <div class="movie-info">
+                                        <div class="movie-title-row">
+                                            <div>
+                                                <h6>${escapeHtml(movie.title)}</h6>
+                                                <div class="movie-subtitle">${movie.year || ''} ${movie.rated ? '• '+movie.rated : ''} ${movie.runtime ? '• '+movie.runtime+' min' : ''}</div>
+                                            </div>
+                                        </div>
+                                        <p class="movie-plot">${escapeHtml(movie.plot || '')}</p>
+                                    </div>
+                                </article>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             }
 
             function selectListById(listId) {
-                if (!listData[listId]) {
-                    return;
-                }
-
                 selectedListId = listId;
                 document.querySelectorAll(".list-card").forEach(card => {
                     card.classList.toggle("active", card.dataset.listId === listId);
@@ -524,26 +471,53 @@
                 renderListContent(listId);
             }
 
+            function createNewList() {
+                const name = document.getElementById("newListName").value.trim();
+                const description = document.getElementById("newListDescription").value.trim();
+                if (!name) { alert("Please enter a name for the new list."); return; }
+
+                ajax('POST', '/lists', { name, description }, function(data, status) {
+                    if (status === 201) {
+                        document.getElementById("newListName").value = '';
+                        document.getElementById("newListDescription").value = '';
+                        newListModalInstance.hide();
+                        loadMyLists();
+                        selectedListId = data._id;
+                    } else {
+                        alert(data.error || 'Error creating list');
+                    }
+                });
+            }
+
+            function editList(event, listId) {
+                event.stopPropagation();
+                const list = getListById(listId);
+                if (!list) return;
+                editingListId = listId;
+                document.getElementById("editListName").value = list.name;
+                document.getElementById("editListDescription").value = list.description || '';
+                editDraftMovies = list.movies.map(m => ({ ...m }));
+                renderEditMoviesList();
+                editListModalInstance.show();
+            }
+
             function renderEditMoviesList() {
                 const container = document.getElementById("editListMovies");
                 const counter = document.getElementById("editListMovieCount");
-
-                counter.textContent = `${editDraftMovies.length} ${editDraftMovies.length === 1 ? "movie" : "movies"}`;
-
+                counter.textContent = `${editDraftMovies.length} ${editDraftMovies.length === 1 ? 'movie' : 'movies'}`;
                 if (!editDraftMovies.length) {
-                    container.innerHTML = '<p class="text-secondary mb-0">This list has no movies. You can still save the new name and description.</p>';
+                    container.innerHTML = '<p class="text-secondary mb-0">No movies in this list.</p>';
                     return;
                 }
-
-                container.innerHTML = editDraftMovies.map((movie, index) => `
+                container.innerHTML = editDraftMovies.map((movie, i) => `
                     <div class="edit-movie-item">
                         <div class="edit-movie-item__content">
                             <strong class="d-block text-white">${escapeHtml(movie.title)}</strong>
-                            <small class="text-secondary">${escapeHtml(movie.year)} • ${escapeHtml(movie.genre)}</small>
+                            <small class="text-secondary">${movie.year || ''} ${movie.genres ? '• '+movie.genres.join(', ') : ''}</small>
                         </div>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMovieFromDraft(${index})">Remove</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMovieFromDraft(${i})">Remove</button>
                     </div>
-                `).join("");
+                `).join('');
             }
 
             function removeMovieFromDraft(index) {
@@ -551,129 +525,50 @@
                 renderEditMoviesList();
             }
 
-            document.addEventListener("DOMContentLoaded", () => {
-                editListModalInstance = new bootstrap.Modal(document.getElementById("editListModal"));
-                deleteListModalInstance = new bootstrap.Modal(document.getElementById("deleteListModal"));
-                newListModalInstance = new bootstrap.Modal(document.getElementById("newListModal"));
-
-                renderListsSidebar();
-                selectListById(selectedListId);
-            });
-
-            function createNewList() {
-                const nameInput = document.getElementById("newListName");
-                const descriptionInput = document.getElementById("newListDescription");
-                const name = nameInput.value.trim();
-                const description = descriptionInput.value.trim();
-
-                if (!name) {
-                    alert("Please enter a name for the new list.");
-                    return;
-                }
-
-                const baseId = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "new-list";
-                let newId = baseId;
-                let suffix = 2;
-
-                while (listData[newId]) {
-                    newId = `${baseId}-${suffix}`;
-                    suffix += 1;
-                }
-
-                listData[newId] = {
-                    name,
-                    description: description || "A custom movie list.",
-                    movies: []
-                };
-
-                nameInput.value = "";
-                descriptionInput.value = "";
-
-                renderListsSidebar();
-                selectListById(newId);
-                newListModalInstance.hide();
-            }
-
-            function editList(event, listId) {
-                event.stopPropagation();
-                const currentListId = listId || selectedListId;
-                const listEntry = listData[currentListId];
-
-                if (!listEntry) {
-                    return;
-                }
-
-                editingListId = currentListId;
-                document.getElementById("editListName").value = listEntry.name;
-                document.getElementById("editListDescription").value = listEntry.description;
-                editDraftMovies = listEntry.movies.map(movie => ({ ...movie }));
-                renderEditMoviesList();
-                editListModalInstance.show();
-            }
-
             function saveListChanges() {
-                const listEntry = listData[editingListId];
-
-                if (!listEntry) {
-                    return;
-                }
-
                 const name = document.getElementById("editListName").value.trim();
                 const description = document.getElementById("editListDescription").value.trim();
+                if (!name) { alert("The list name cannot be empty."); return; }
 
-                if (!name) {
-                    alert("The list name cannot be empty.");
-                    return;
-                }
-
-                listEntry.name = name;
-                listEntry.description = description || "A curated movie list.";
-                listEntry.movies = editDraftMovies.map(movie => ({ ...movie }));
-
-                renderListsSidebar();
-                selectListById(editingListId);
-                editListModalInstance.hide();
+                const movieIds = editDraftMovies.map(m => m._id);
+                ajax('PUT', '/lists/' + editingListId, { name, description, movies: movieIds }, function(data, status) {
+                    if (status === 200) {
+                        editListModalInstance.hide();
+                        loadMyLists();
+                    } else {
+                        alert(data.error || 'Error saving changes');
+                    }
+                });
             }
 
             function deleteList(event, listId) {
                 event.stopPropagation();
-                const currentListId = listId || selectedListId;
-                const listEntry = listData[currentListId];
-
-                if (!listEntry) {
-                    return;
-                }
-
-                deletingListId = currentListId;
-                document.getElementById("deleteListMessage").textContent =
-                    `"${listEntry.name}" and its ${listEntry.movies.length} ${listEntry.movies.length === 1 ? "movie" : "movies"} will be removed permanently.`;
+                const list = getListById(listId);
+                if (!list) return;
+                deletingListId = listId;
+                document.getElementById("deleteListMessage").textContent = `"${list.name}" and its ${list.movies.length} ${list.movies.length === 1 ? 'movie' : 'movies'} will be removed permanently.`;
                 deleteListModalInstance.show();
             }
 
             function confirmDeleteList() {
-                if (!deletingListId || !listData[deletingListId]) {
-                    return;
-                }
-
-                delete listData[deletingListId];
-
-                const remainingIds = Object.keys(listData);
-                if (!remainingIds.length) {
-                    selectedListId = null;
-                    renderListsSidebar();
-                    renderListContent(null);
-                    deleteListModalInstance.hide();
-                    return;
-                }
-
-                if (selectedListId === deletingListId) {
-                    selectedListId = remainingIds[0];
-                }
-
-                renderListsSidebar();
-                selectListById(selectedListId);
-                deleteListModalInstance.hide();
+                if (!deletingListId) return;
+                ajax('DELETE', '/lists/' + deletingListId, null, function(data, status) {
+                    if (status === 200) {
+                        if (selectedListId === deletingListId) selectedListId = null;
+                        deleteListModalInstance.hide();
+                        loadMyLists();
+                    } else {
+                        alert(data.error || 'Error deleting list');
+                    }
+                });
             }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                editListModalInstance = new bootstrap.Modal(document.getElementById("editListModal"));
+                deleteListModalInstance = new bootstrap.Modal(document.getElementById("deleteListModal"));
+                newListModalInstance = new bootstrap.Modal(document.getElementById("newListModal"));
+                loadMyLists();
+            });
         </script>
     </body>
 </html>

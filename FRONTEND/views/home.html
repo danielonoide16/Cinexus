@@ -13,7 +13,7 @@
 <nav class="navbar navbar-dark bg-dark px-4">
     <span class="navbar-brand home-link" onclick="goToHome()">🎬 Cinexus</span>
     <div class="navbar-user-group">
-        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile">JD</div>
+        <div id="navAvatar" class="avatar nav-avatar is-clickable" onclick="goToProfile()" title="View profile" style="overflow:hidden;">JD</div>
         <button class="btn btn-outline-light" onclick="logout()">Logout</button>
     </div>
 </nav>
@@ -101,6 +101,103 @@ const user = JSON.parse(localStorage.getItem('user')) || {};
 document.getElementById('navAvatar').textContent = getInitials(user.name);
 let currentPage = 1;
 const PAGE_SIZE = 12;
+(function() {
+    const nav = document.getElementById('navAvatar');
+    if (user.avatarUrl) {
+        nav.innerHTML = `<img src="${API.replace('/api','') + user.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+        nav.textContent = getInitials(user.name);
+    }
+})();
+
+
+function loadImage(url) {
+    return new Promise(resolve => {
+        const img = new Image();
+
+        img.onload = () => {
+            resolve(true);  
+        };
+
+        img.onerror = () => resolve(false);
+
+        img.src = url;
+    });
+}
+
+async function filterValidImages(movies) {
+    const checks = await Promise.all(
+        movies.map(async m => {
+            if (!m.poster) return null;
+
+            const isValid = await loadImage(m.poster);
+            return isValid ? m : null;
+        })
+    );
+
+    return checks.filter(Boolean);
+}
+
+function updatePagination(pagination) {
+    document.getElementById('pageInfo').textContent = `Page ${pagination.page} of ${pagination.totalPages}`;
+    document.getElementById('prevPageBtn').disabled = !pagination.hasPrev;
+    document.getElementById('nextPageBtn').disabled = !pagination.hasNext;
+}
+
+async function renderMovies(page = 1) {
+    currentPage = page;
+    const search = document.getElementById('searchInput').value.trim();
+    const genre = document.getElementById('genreFilter').value;
+    const year = document.getElementById('yearFilter').value.trim() || 'all';
+
+    let url = '/movies?';
+
+    if (search) url += `q=${encodeURIComponent(search)}&`;
+    if (genre) url += `genre=${encodeURIComponent(genre)}&`;
+    if (year && year !== 'all') {
+        url += `year=${encodeURIComponent(year)}&`;
+    }
+    url += `page=${encodeURIComponent(page)}&limit=${encodeURIComponent(PAGE_SIZE)}&`;
+
+    ajax('GET', url, null, async function (data, status) {
+        const container = document.getElementById('moviesContainer');
+        container.innerHTML = '';
+
+        if (status !== 200) {
+            container.innerHTML = "<p class='text-white'>Error loading movies</p>";
+            return;
+        }
+
+        const movies = Array.isArray(data) ? data : (data.items || []);
+        const pagination = data.pagination || { page: 1, totalPages: 1, hasPrev: false, hasNext: false };
+
+        if (!movies.length) {
+            container.innerHTML = "<p class='text-white'>No results</p>";
+            updatePagination(pagination);
+            return;
+        }
+
+        const validMovies = await filterValidImages(movies);
+
+        validMovies.forEach(m => {
+            const posterUrl = m.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
+
+            container.innerHTML += `
+            <div class="col-md-3">
+                <div class="movie-card" onclick="goToMovie('${m.imdbID}')">
+                    <img src="${posterUrl}" class="w-100">
+                    <div class="p-2 text-white">
+                        <strong>${m.title}</strong><br>
+                        <small>${m.year || ''}${m.rated ? ` • ${m.rated}` : ''}${m.runtime ? ` • ${m.runtime} min` : ''}</small>
+                    </div>
+                </div>
+            </div>
+            `;
+        });
+
+        updatePagination(pagination);
+    });
+}
 
 function changePage(delta) {
     const nextPage = Math.max(1, currentPage + delta);

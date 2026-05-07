@@ -40,6 +40,38 @@ exports.updateList = async (req, res) => {
     res.json(updatedList);
 };
 
+exports.addMovieToList = async (req, res) => {
+    const { imdbID } = req.body;
+    if (!imdbID) return res.status(400).json({ error: 'imdbID is required' });
+
+    const list = await MovieList.findOne({ _id: req.params.id, owner: req.user.id });
+    if (!list) return res.status(404).json({ error: 'List not found' });
+
+    const Movie = require('../models/movieModel');
+    let movie = await Movie.findOne({ imdbID });
+    if (!movie) {
+        const omdbService = require('../services/omdbService');
+        const details = await omdbService.getMovieByImdb(imdbID);
+        if (!details || details.Response === 'False') return res.status(404).json({ error: 'Movie not found in OMDB' });
+        movie = await Movie.create({ title: details.Title, year: Number(details.Year) || undefined, imdbID, poster: details.Poster !== 'N/A' ? details.Poster : '', plot: details.Plot, genres: (details.Genre || '').split(',').map(g => g.trim()).filter(Boolean), rated: details.Rated, runtime: parseInt(details.Runtime) || undefined });
+    }
+
+    if (list.movies.includes(movie._id)) return res.status(409).json({ error: 'Movie already in list' });
+    list.movies.push(movie._id);
+    await list.save();
+    const updated = await MovieList.findById(list._id).populate('movies');
+    res.json(updated);
+};
+
+exports.removeMovieFromList = async (req, res) => {
+    const list = await MovieList.findOne({ _id: req.params.id, owner: req.user.id });
+    if (!list) return res.status(404).json({ error: 'List not found' });
+    list.movies = list.movies.filter(m => m.toString() !== req.params.movieId);
+    await list.save();
+    const updated = await MovieList.findById(list._id).populate('movies');
+    res.json(updated);
+};
+
 exports.deleteList = async (req, res) => {
     const list = await MovieList.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
     if (!list) return res.status(404).json({ error: 'List not found' });

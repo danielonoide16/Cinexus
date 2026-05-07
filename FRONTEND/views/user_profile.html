@@ -405,15 +405,31 @@
             function goToHome() { window.location.href = 'home.html'; }
 
             function showTab(tab) {
+
                 const reviews = document.getElementById("reviews-section");
                 const lists = document.getElementById("lists-section");
+
                 const tabs = document.querySelectorAll(".tabs li");
+
                 tabs.forEach(t => t.classList.remove("active"));
+
                 if (tab === "reviews") {
-                    reviews.classList.remove("d-none"); lists.classList.add("d-none"); tabs[0].classList.add("active");
+
+                    reviews.classList.remove("d-none");
+                    lists.classList.add("d-none");
+
+                    tabs[0].classList.add("active");
+
                 } else {
-                    reviews.classList.add("d-none"); lists.classList.remove("d-none"); tabs[1].classList.add("active");
-                    loadMyLists();
+
+                    reviews.classList.add("d-none");
+                    lists.classList.remove("d-none");
+
+                    tabs[1].classList.add("active");
+
+                    if (isOwnProfile) {
+                        loadMyLists();
+                    }
                 }
             }
 
@@ -616,10 +632,14 @@
             }
 
             document.addEventListener("DOMContentLoaded", () => {
+
                 editListModalInstance = new bootstrap.Modal(document.getElementById("editListModal"));
                 deleteListModalInstance = new bootstrap.Modal(document.getElementById("deleteListModal"));
                 newListModalInstance = new bootstrap.Modal(document.getElementById("newListModal"));
-                loadMyLists();
+
+                if (isOwnProfile) {
+                    loadMyLists();
+                }
             });
         </script>
     </body>

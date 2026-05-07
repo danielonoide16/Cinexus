@@ -122,15 +122,16 @@ exports.getPublicProfile = async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
     }
 
-    const reviews = await Review.find({ userId })
-        .populate('movieId')
+    const reviews = await Review.find({ user: userId })
+        .populate('movie')
         .sort({ createdAt: -1 });
 
-    const movieLists = await MovieList.find({ owner: userId });
+    const movieLists = await MovieList.find({ owner: userId })
+        .populate('movies');
 
     res.json({
         user,
         reviews,
-        movieLists
+        lists: movieLists
     });
 };

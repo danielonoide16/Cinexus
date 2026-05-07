@@ -227,7 +227,8 @@ function renderPublicReviews(reviews) {
 
     container.innerHTML = reviews.map(review => {
 
-        const movie = review.movieId;
+        //const movie = review.movieId;
+        const movie = review.movie;
 
         return `
             <div class="review-card mb-3">

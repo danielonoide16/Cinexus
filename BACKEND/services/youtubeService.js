@@ -4,30 +4,42 @@ const API_KEY = process.env.YOUTUBE_API_KEY;
 const BASE_URL = 'https://www.googleapis.com/youtube/v3/search';
 
 exports.searchTrailer = async ({ title, year }) => {
+
     if (!API_KEY || !title) return null;
 
-    const query = `${title} ${year || ''} official trailer`.trim();
+    try {
 
-    const res = await axios.get(BASE_URL, {
-        params: {
-            key: API_KEY,
-            part: 'snippet',
-            q: query,
-            type: 'video',
-            videoEmbeddable: 'true',
-            maxResults: 5,
-            safeSearch: 'moderate'
-        }
-    });
+        const query = `${title} ${year || ''} official trailer`.trim();
 
-    const items = res.data.items || [];
-    const best = items.find(item => item.id && item.id.videoId) || null;
+        const res = await axios.get(BASE_URL, {
+            params: {
+                key: API_KEY,
+                part: 'snippet',
+                q: query,
+                type: 'video',
+                videoEmbeddable: 'true',
+                maxResults: 5,
+                safeSearch: 'moderate'
+            }
+        });
 
-    if (!best) return null;
+        const items = res.data.items || [];
 
-    return {
-        videoId: best.id.videoId,
-        title: best.snippet?.title || '',
-        url: `https://www.youtube-nocookie.com/embed/${best.id.videoId}`
-    };
+        const best =
+            items.find(item => item.id && item.id.videoId) || null;
+
+        if (!best) return null;
+
+        return {
+            videoId: best.id.videoId,
+            title: best.snippet?.title || '',
+            url: `https://www.youtube-nocookie.com/embed/${best.id.videoId}`
+        };
+
+    } catch (error) {
+
+        console.error('YouTube trailer error:', error.response?.data || error.message);
+
+        return null;
+    }
 };

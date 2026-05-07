@@ -78,6 +78,7 @@
 
 <script src="../controllers/api.js"></script>
 <script src="../controllers/movieController.js"></script>
+<script src="../controllers/reviewController.js"></script>
 <script>
 const usuario = JSON.parse(localStorage.getItem('user'));
 if (!usuario) window.location.href = 'login-register.html';
@@ -96,24 +97,8 @@ document.getElementById('navAvatar').textContent = getInitials(usuario.name);
 
 const imdbID = new URLSearchParams(location.search).get('imdbID');
 let tituloPelicula = '';
+let movieId = '';
 
-// Hardcoded reviews
-const resenas = {
-    "Project Hail Mary": [
-        { usuario: "Carlos", estrellas: 5, texto: "My girlfriend and I watched it and we both cried, don't miss it.", fecha: "3/1/2025" },
-        { usuario: "Maria",  estrellas: 4, texto: "Amazing, though the ending left me with questions.", fecha: "5/1/2025" }
-    ],
-    "Zootopia 2": [
-        { usuario: "Maria",  estrellas: 3, texto: "The first one was better but we still laughed a lot.", fecha: "20/4/2025" }
-    ],
-    "The Dark Knight": [
-        { usuario: "Luis",   estrellas: 5, texto: "Put it on as background during dinner with my girlfriend and we ended up watching the whole thing.", fecha: "11/3/2024" },
-        { usuario: "Carlos", estrellas: 5, texto: "The Joker really gets on my nerves, which means the acting was incredible.", fecha: "12/3/2024" }
-    ],
-    "The Shawshank Redemption": [
-        { usuario: "Luis",   estrellas: 5, texto: "My girlfriend and I watched it on a Sunday and didn't say a word for two hours, it was that good.", fecha: "11/3/2024" }
-    ]
-};
 
 function formatMovieMeta(movie) {
     const parts = [];
@@ -137,33 +122,6 @@ function resaltarEstrellas(n) {
     document.querySelectorAll('.estrella-btn').forEach(s => s.classList.toggle('activa', +s.dataset.v <= n));
 }
 
-function publicarResena() {
-    const texto = document.getElementById('textoResena').value.trim();
-    if (!tituloPelicula) { alert('Movie details are still loading.'); return; }
-    if (!estrellasSeleccionadas || !texto) { alert('Select a rating and write a review.'); return; }
-    if (!resenas[tituloPelicula]) resenas[tituloPelicula] = [];
-    resenas[tituloPelicula].unshift({ usuario: usuario.name, estrellas: estrellasSeleccionadas, texto, fecha: new Date().toLocaleDateString() });
-    document.getElementById('textoResena').value = '';
-    estrellasSeleccionadas = 0;
-    resaltarEstrellas(0);
-    mostrarResenas();
-}
-
-function mostrarResenas() {
-    const lista = resenas[tituloPelicula] || [];
-    const contenedor = document.getElementById('contenedorResenas');
-    if (!lista.length) { contenedor.innerHTML = '<p class="text-secondary">No reviews yet.</p>'; return; }
-    contenedor.innerHTML = lista.map(r => `
-        <div class="tarjeta-resena">
-            <div class="d-flex justify-content-between">
-                <strong class="text-white">${r.usuario}</strong>
-                <small class="text-secondary">${r.fecha}</small>
-            </div>
-            <div class="estrellas">${'★'.repeat(r.estrellas)}${'☆'.repeat(5 - r.estrellas)}</div>
-            <p class="text-white-50 mb-0 mt-1">${r.texto}</p>
-        </div>
-    `).join('');
-}
 
 function agregarALista() {
     const select = document.getElementById('selectLista');

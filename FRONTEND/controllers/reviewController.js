@@ -256,7 +256,7 @@ function renderPublicReviews(reviews) {
                         </h5>
 
                         <div class="mb-2">
-                            ⭐ ${review.rating}/10
+                            ⭐ ${review.rating}/5
                         </div>
 
                         <p class="mb-0">

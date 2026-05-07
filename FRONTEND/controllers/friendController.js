@@ -46,8 +46,9 @@ function buscarUsuarios() {
             const userId = getUserId(u);
             const isFriend = myFriends.some(friend => getUserId(friend) === userId);
             const isSent = sentRequests.includes(userId);
+            const isReceived = receivedRequests.includes(userId);
 
-            return !isFriend && !isSent;
+            return !isFriend && !isSent && !isReceived;
         });
 
         if (!usuarios.length) {
@@ -57,13 +58,7 @@ function buscarUsuarios() {
 
         contenedor.innerHTML = usuarios.map(function (u) {
             const userId = getUserId(u);
-            const isReceived = receivedRequests.includes(userId);
-            const boton = isReceived
-                ? `<div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-morado" onclick="responderSolicitud('${userId}', 'accept')">Accept</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="responderSolicitud('${userId}', 'decline')">Decline</button>
-                </div>`
-                : `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${userId}')">Add Friend</button>`;
+            const boton = `<button class="btn btn-sm btn-morado" onclick="enviarSolicitud('${userId}')">Add Friend</button>`;
 
             return tarjetaUsuario(u, boton);
         }).join('');

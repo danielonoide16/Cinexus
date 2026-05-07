@@ -19,7 +19,14 @@ function register() {
     const password = document.getElementById('regPassword').value;
     const confirm = document.getElementById('regConfirm').value;
 
+    //check password length
+    if (password.length < 6) { alert('Password must be at least 6 characters'); return; }
+    
     if (password !== confirm) { alert('Passwords do not match'); return; }
+
+    // check if email is valid
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) { alert('Invalid email'); return; }
 
     ajax('POST', '/auth/register', { name, email, password }, function (data, status) {
         if (status === 201) {

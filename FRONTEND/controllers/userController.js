@@ -6,7 +6,7 @@ function loadProfile() {
         document.getElementById('profileEmail').textContent = data.email;
         document.getElementById('profileBio').textContent = data.bio || 'No bio yet.';
         document.getElementById('inputName').value = data.name;
-        document.getElementById('inputEmail').value = data.email;
+        //document.getElementById('inputEmail').value = data.email;
         document.getElementById('inputBio').value = data.bio || '';
         renderAvatar(document.getElementById('navAvatar'), data);
         renderAvatar(document.querySelector('#personal-info .avatar'), data);
@@ -163,13 +163,14 @@ function renderAvatar(el, user) {
 
 function saveProfile() {
     const name = document.getElementById('inputName').value.trim();
-    const email = document.getElementById('inputEmail').value.trim();
+    const password = document.getElementById('inputPassword').value.trim();
     const bio = document.getElementById('inputBio').value.trim();
     const fileInput = document.getElementById('inputAvatar');
     const file = fileInput.files[0];
 
     function updateProfile(avatarUrl) {
-        const body = { name, email, bio };
+        const body = { name, bio };
+        if (password) body.password = password;
         if (avatarUrl !== undefined) body.avatarUrl = avatarUrl;
         ajax('PUT', '/users/me', body, function (data, status) {
             if (status === 200) {
@@ -180,6 +181,7 @@ function saveProfile() {
                 renderAvatar(document.getElementById('navAvatar'), data);
                 renderAvatar(document.querySelector('#personal-info .avatar'), data);
                 fileInput.value = '';
+                document.getElementById('inputPassword').value = '';
                 bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
             } else {
                 alert(data.error);

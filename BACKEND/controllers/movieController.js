@@ -166,6 +166,9 @@ exports.getMovies = async (req, res) => {
     const minRuntime = toNumber(req.query.minRuntime);
     const maxRuntime = toNumber(req.query.maxRuntime);
 
+    //sort map is used to convert sort query parameter into mongoose sort object
+    //sort query parameter can be: year_desc, year_asc, title_asc, title_desc, rating_desc, rating_asc, runtime_desc, runtime_asc
+    //mogoose sort object is used to sort the results from the database
     const sortMap = {
         year_desc: { year: -1, createdAt: -1 },
         year_asc: { year: 1, createdAt: -1 },

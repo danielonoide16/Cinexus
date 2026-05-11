@@ -44,7 +44,7 @@ exports.discoverMovies = async ({
     page = 1,
     genre,
     year,
-    sort = 'popularity.desc'
+    sort = 'primary_release_date.desc'
 }) => {
 
     const params = {
@@ -60,6 +60,21 @@ exports.discoverMovies = async ({
 
     if (year) {
         params.primary_release_year = year;
+    }
+
+    // solo películas recientes
+    if (!year) {
+
+        const today = new Date();
+
+        const lastYear = new Date();
+
+        lastYear.setFullYear(
+            today.getFullYear() - 1
+        );
+
+        params['primary_release_date.gte'] =
+            lastYear.toISOString().split('T')[0];
     }
 
     const response = await axios.get(

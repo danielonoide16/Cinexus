@@ -189,7 +189,8 @@ exports.getMovies = async (req, res) => {
         Number(req.query.page) || 1
     );
 
-    const sort = (req.query.sort || 'popularity.desc').trim();
+    // we sort by most recent release date by default, but if year is specified, sort by popularity
+    const sort = (req.query.sort || (year ? 'popularity.desc' : 'primary_release_date.desc')).trim();
 
     let data;
 

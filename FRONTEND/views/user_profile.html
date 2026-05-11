@@ -391,6 +391,8 @@
             }
 
             let myLists = [];
+            const MOVIES_PER_PAGE = 5;
+            let listPageById = {};
             let selectedListId = null;
             let editingListId = null;
             let deletingListId = null;
@@ -439,10 +441,29 @@
 
             function getListById(id) { return myLists.find(l => l._id === id); }
 
+            function getCurrentListPage(listId, totalPages) {
+                const page = listPageById[listId] || 1;
+                const safePage = Math.min(Math.max(page, 1), Math.max(totalPages, 1));
+                listPageById[listId] = safePage;
+                return safePage;
+            }
+
+            function goToListPage(page) {
+                if (!selectedListId) return;
+                listPageById[selectedListId] = page;
+                renderListContent(selectedListId);
+            }
+
             function loadMyLists() {
                 ajax('GET', '/lists/me', null, function(data, status) {
                     if (status !== 200) return;
                     myLists = data;
+                    const validListIds = new Set(myLists.map(list => list._id));
+                    Object.keys(listPageById).forEach(listId => {
+                        if (!validListIds.has(listId)) {
+                            delete listPageById[listId];
+                        }
+                    });
                     renderListsSidebar();
                     if (selectedListId && getListById(selectedListId)) {
                         renderListContent(selectedListId);
@@ -486,6 +507,12 @@
                     return;
                 }
 
+                const totalPages = Math.ceil(list.movies.length / MOVIES_PER_PAGE);
+                const currentPage = getCurrentListPage(listId, totalPages);
+                const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
+                const endIndex = startIndex + MOVIES_PER_PAGE;
+                const visibleMovies = list.movies.slice(startIndex, endIndex);
+
                 content.innerHTML = `
                     <div class="list-detail">
                         <div class="list-detail-header">
@@ -493,7 +520,7 @@
                             <span class="list-meta-chip">${list.movies.length} ${list.movies.length===1?'movie':'movies'}</span>
                         </div>
                         <div class="movie-grid">
-                            ${list.movies.map(movie => `
+                            ${visibleMovies.map(movie => `
                                 <article class="movie-highlight-card" onclick="goToMovie('${escapeHtml(movie.tmdbID)}')">
                                     <img class="movie-poster" src="${movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png'}" alt="${escapeHtml(movie.title)}">
                                     <div class="movie-info">
@@ -508,12 +535,25 @@
                                 </article>
                             `).join('')}
                         </div>
+                        ${totalPages > 1 ? `
+                        <div class="list-pagination">
+                            <span class="list-pagination__summary">Showing ${startIndex + 1}-${Math.min(endIndex, list.movies.length)} of ${list.movies.length} movies</span>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToListPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                                <span class="list-meta-chip">Page ${currentPage} of ${totalPages}</span>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToListPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+                            </div>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             }
 
             function selectListById(listId) {
                 selectedListId = listId;
+                if (!listPageById[listId]) {
+                    listPageById[listId] = 1;
+                }
                 document.querySelectorAll(".list-card").forEach(card => {
                     card.classList.toggle("active", card.dataset.listId === listId);
                 });

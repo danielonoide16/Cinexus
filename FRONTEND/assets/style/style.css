@@ -557,6 +557,20 @@ body.page-profile {
     width: 100%;
 }
 
+.page-profile .list-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.page-profile .list-pagination__summary {
+    color: #b8b8c5;
+    font-size: 0.88rem;
+}
+
 .page-profile .simple-list ul {
     margin: 18px 0 0;
     padding-left: 18px;
@@ -619,6 +633,11 @@ body.page-profile {
     .page-profile .movie-title-row,
     .page-profile .list-detail-header {
         flex-direction: column;
+    }
+
+    .page-profile .list-pagination {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .page-profile .movie-details {

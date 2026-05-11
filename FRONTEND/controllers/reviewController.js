@@ -192,7 +192,7 @@ function loadMyReviews() {
         }
 
         container.innerHTML = data.map(r => `
-            <article class="review" onclick="goToMovie('${r.movie.imdbID}')">
+            <article class="review" onclick="goToMovie('${r.movie.tmdbID}')">
 
                 <h4>${r.movie.title}</h4>
 
@@ -243,14 +243,14 @@ function renderPublicReviews(reviews) {
                     <img
                         src="${movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png'}"
                         style="width:80px;border-radius:8px;cursor:pointer;"
-                        onclick="goToMovie('${movie.imdbID}')"
+                        onclick="goToMovie('${movie.tmdbID}')"
                     >
 
                     <div class="flex-grow-1">
 
                         <h5
                             style="cursor:pointer;"
-                            onclick="goToMovie('${movie.imdbID}')"
+                            onclick="goToMovie('${movie.tmdbID}')"
                         >
                             ${movie.title}
                         </h5>

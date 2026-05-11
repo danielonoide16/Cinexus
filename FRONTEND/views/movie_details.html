@@ -159,7 +159,7 @@ function getInitials(name) {
     }
 })();
 
-const imdbID = new URLSearchParams(location.search).get('imdbID');
+const tmdbID = new URLSearchParams(location.search).get('tmdbID');
 let tituloPelicula = '';
 let movieId = '';
 
@@ -210,8 +210,8 @@ function cargarListas() {
 
 function agregarALista() {
     const select = document.getElementById('selectLista');
-    if (!select.value || !imdbID) return;
-    ajax('POST', '/lists/' + select.value + '/movies', { imdbID: imdbID }, function(res, status) {
+    if (!select.value || !tmdbID) return;
+    ajax('POST', '/lists/' + select.value + '/movies', { tmdbID: tmdbID }, function(res, status) {
         const msg = document.getElementById('mensajeLista');
         if (status === 200) {
             msg.className = 'text-success mt-1 d-block';

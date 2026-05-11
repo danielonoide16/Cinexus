@@ -29,7 +29,7 @@ exports.getMovieReviews = async (req, res) => {
 
 exports.getMyReviews = async (req, res) => {
     const reviews = await Review.find({ user: req.user.id })
-        .populate('movie', '_id title imdbID avatarUrl')
+        .populate('movie', '_id title tmdbID avatarUrl')
         .sort({ createdAt: -1 });
 
     res.json(reviews);

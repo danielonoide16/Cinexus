@@ -86,11 +86,10 @@ const movieSchema = new mongoose.Schema(
         imdbVotes: {
             type: Number
         },
-        imdbID: {
-            type: String,
+        tmdbID: {
+            type: Number,
             unique: true,
-            sparse: true,
-            trim: true
+            sparse: true
         },
         type: {
             type: String,
@@ -106,5 +105,6 @@ const movieSchema = new mongoose.Schema(
 );
 
 movieSchema.index({ title: 1, year: 1 });
+
 
 module.exports = mongoose.model('Movie', movieSchema);

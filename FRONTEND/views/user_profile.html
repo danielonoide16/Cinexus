@@ -399,7 +399,7 @@
             let deleteListModalInstance;
             let newListModalInstance;
 
-            function goToMovie(imdbID) { window.location.href = 'movie_details.html?imdbID=' + imdbID; }
+            function goToMovie(tmdbID) { window.location.href = 'movie_details.html?tmdbID=' + tmdbID; }
             function goToProfile() { window.location.href = 'user_profile.html'; }
             function logout() { localStorage.clear(); window.location.href = 'login-register.html'; }
             function goToHome() { window.location.href = 'home.html'; }
@@ -494,7 +494,7 @@
                         </div>
                         <div class="movie-grid">
                             ${list.movies.map(movie => `
-                                <article class="movie-highlight-card" onclick="goToMovie('${escapeHtml(movie.imdbID)}')">
+                                <article class="movie-highlight-card" onclick="goToMovie('${escapeHtml(movie.tmdbID)}')">
                                     <img class="movie-poster" src="${movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png'}" alt="${escapeHtml(movie.title)}">
                                     <div class="movie-info">
                                         <div class="movie-title-row">

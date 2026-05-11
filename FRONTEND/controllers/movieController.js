@@ -12,6 +12,54 @@ function loadImage(url) {
     });
 }
 
+function loadGenres() {
+
+    ajax('GET', '/movies/genres', null,
+        function(genres, status) {
+
+        if (status !== 200) return;
+
+        const select =
+            document.getElementById('genreFilter');
+
+        select.innerHTML =
+            '<option value="">All Genres</option>';
+
+        genres.forEach(g => {
+
+            select.innerHTML += `
+                <option value="${g.id}">
+                    ${g.name}
+                </option>
+            `;
+        });
+    });
+}
+
+function loadYears() {
+
+    ajax('GET', '/movies/years', null,
+        function(years, status) {
+
+        if (status !== 200) return;
+
+        const select =
+            document.getElementById('yearFilter');
+
+        select.innerHTML =
+            '<option value="all">All Years</option>';
+
+        years.forEach(year => {
+
+            select.innerHTML += `
+                <option value="${year}">
+                    ${year}
+                </option>
+            `;
+        });
+    });
+}
+
 async function filterValidImages(movies) {
     const checks = await Promise.all(
         movies.map(async m => {
@@ -32,53 +80,123 @@ function updatePagination(pagination) {
 }
 
 async function renderMovies(page = 1) {
+
     currentPage = page;
-    const search = document.getElementById('searchInput').value.trim();
-    const genre = document.getElementById('genreFilter').value;
-    const year = document.getElementById('yearFilter').value.trim() || 'all';
 
-    let url = '/movies?';
+    const search =
+        document.getElementById('searchInput')
+            .value
+            .trim();
 
-    if (search) url += `q=${encodeURIComponent(search)}&`;
-    if (genre) url += `genre=${encodeURIComponent(genre)}&`;
-    if (year && year !== 'all') {
-        url += `year=${encodeURIComponent(year)}&`;
+    const genre =
+        document.getElementById('genreFilter')
+            .value;
+
+    const year =
+        document.getElementById('yearFilter')
+            .value
+            .trim();
+
+    const sort =
+        document.getElementById('sortFilter')
+            ?.value || 'popularity.desc';
+
+    let url = `/movies?page=${page}`;
+
+    if (search) {
+        url += `&q=${encodeURIComponent(search)}`;
     }
-    url += `page=${encodeURIComponent(page)}&limit=${encodeURIComponent(PAGE_SIZE)}&`;
 
-    ajax('GET', url, null, async function (data, status) {
-        const container = document.getElementById('moviesContainer');
+    if (genre) {
+        url += `&genre=${encodeURIComponent(genre)}`;
+    }
+
+    if (year && year !== 'all') {
+        url += `&year=${encodeURIComponent(year)}`;
+    }
+
+    if (sort) {
+        url += `&sort=${encodeURIComponent(sort)}`;
+    }
+
+    ajax('GET', url, null,
+        async function(data, status) {
+
+        const container =
+            document.getElementById('moviesContainer');
+
         container.innerHTML = '';
 
         if (status !== 200) {
-            container.innerHTML = "<p class='text-white'>Error loading movies</p>";
+
+            container.innerHTML =
+                "<p class='text-white'>Error loading movies</p>";
+
             return;
         }
 
-        const movies = Array.isArray(data) ? data : (data.items || []);
-        const pagination = data.pagination || { page: 1, totalPages: 1, hasPrev: false, hasNext: false };
+        const movies = data.items || [];
+
+        const pagination =
+            data.pagination || {
+                page: 1,
+                totalPages: 1,
+                hasPrev: false,
+                hasNext: false
+            };
 
         if (!movies.length) {
-            container.innerHTML = "<p class='text-white'>No results</p>";
+
+            container.innerHTML =
+                "<p class='text-white'>No results</p>";
+
             updatePagination(pagination);
+
             return;
         }
 
-        const validMovies = await filterValidImages(movies);
+        const validMovies =
+            await filterValidImages(movies);
 
         validMovies.forEach(m => {
-            const posterUrl = m.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
+
+            const posterUrl =
+                m.poster ||
+                'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
 
             container.innerHTML += `
-            <div class="col-md-3">
-                <div class="movie-card" onclick="goToMovie('${m.imdbID}')">
-                    <img src="${posterUrl}" class="w-100">
-                    <div class="p-2 text-white">
-                        <strong>${m.title}</strong><br>
-                        <small>${m.year || ''}${m.rated ? ` • ${m.rated}` : ''}${m.runtime ? ` • ${m.runtime} min` : ''}</small>
+                <div class="col-md-3">
+
+                    <div
+                        class="movie-card"
+                        onclick="goToMovie('${m.tmdbID}')"
+                    >
+
+                        <img
+                            src="${posterUrl}"
+                            class="w-100"
+                        >
+
+                        <div class="p-2 text-white">
+
+                            <strong>
+                                ${m.title}
+                            </strong>
+
+                            <br>
+
+                            <small>
+                                ${m.year || ''}
+                                ${m.imdbRating
+                                    ? ` • ⭐ ${m.imdbRating.toFixed(1)}`
+                                    : ''}
+                            </small>
+
+                        </div>
+
                     </div>
+
                 </div>
-            </div>
             `;
         });
 
@@ -87,14 +205,14 @@ async function renderMovies(page = 1) {
 }
 
 function loadMovieDetails() {
-    if (!imdbID) {
+    if (!tmdbID) {
         document.getElementById('titulo').textContent = 'Movie not found';
-        document.getElementById('descripcion').textContent = 'Missing imdbID in URL.';
+        document.getElementById('descripcion').textContent = 'Missing tmdbID in URL.';
         return;
     }
 
     
-    ajax('GET', `/movies/imdb/${encodeURIComponent(imdbID)}`, null, function (movie, status) {
+    ajax('GET', `/movies/tmdb/${encodeURIComponent(tmdbID)}`, null, function (movie, status) {
         if (status !== 200) {
             document.getElementById('titulo').textContent = 'Movie not found';
             document.getElementById('descripcion').textContent = 'Could not load movie details.';

@@ -41,19 +41,19 @@ exports.updateList = async (req, res) => {
 };
 
 exports.addMovieToList = async (req, res) => {
-    const { imdbID } = req.body;
-    if (!imdbID) return res.status(400).json({ error: 'imdbID is required' });
+    const { tmdbID } = req.body;
+    if (!tmdbID) return res.status(400).json({ error: 'tmdbID is required' });
 
     const list = await MovieList.findOne({ _id: req.params.id, owner: req.user.id });
     if (!list) return res.status(404).json({ error: 'List not found' });
 
     const Movie = require('../models/movieModel');
-    let movie = await Movie.findOne({ imdbID });
+    let movie = await Movie.findOne({ tmdbID });
     if (!movie) {
-        const omdbService = require('../services/omdbService');
-        const details = await omdbService.getMovieByImdb(imdbID);
+        let movieController = require('./movieController');
+        const details = await movieController.getMovieByTmdbId(tmdbID);
         if (!details || details.Response === 'False') return res.status(404).json({ error: 'Movie not found in OMDB' });
-        movie = await Movie.create({ title: details.Title, year: Number(details.Year) || undefined, imdbID, poster: details.Poster !== 'N/A' ? details.Poster : '', plot: details.Plot, genres: (details.Genre || '').split(',').map(g => g.trim()).filter(Boolean), rated: details.Rated, runtime: parseInt(details.Runtime) || undefined });
+        movie = await Movie.create({ title: details.Title, year: Number(details.Year) || undefined, tmdbID, poster: details.Poster !== 'N/A' ? details.Poster : '', plot: details.Plot, genres: (details.Genre || '').split(',').map(g => g.trim()).filter(Boolean), rated: details.Rated, runtime: parseInt(details.Runtime) || undefined });
     }
 
     if (list.movies.includes(movie._id)) return res.status(409).json({ error: 'Movie already in list' });

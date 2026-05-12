@@ -193,15 +193,40 @@ function saveProfile() {
         const formData = new FormData();
         formData.append('avatar', file);
         const xhr = new XMLHttpRequest();
+
+        if (window.AppLoading) {
+            window.AppLoading.requestStarted('Uploading image...');
+        }
+
         xhr.open('POST', API + '/users/me/avatar');
         xhr.setRequestHeader('Authorization', 'Bearer ' + getToken());
         xhr.onload = function () {
-            const res = JSON.parse(xhr.responseText);
+            let res = {};
+
+            if (xhr.responseText) {
+                try {
+                    res = JSON.parse(xhr.responseText);
+                } catch (error) {
+                    res = { error: 'Invalid upload response' };
+                }
+            }
+
+            if (window.AppLoading) {
+                window.AppLoading.requestFinished();
+            }
+
             if (xhr.status === 200) {
                 updateProfile(res.avatarUrl);
             } else {
                 alert(res.error || 'Upload failed');
             }
+        };
+        xhr.onerror = function () {
+            if (window.AppLoading) {
+                window.AppLoading.requestFinished();
+            }
+
+            alert('Upload failed');
         };
         xhr.send(formData);
     } else {

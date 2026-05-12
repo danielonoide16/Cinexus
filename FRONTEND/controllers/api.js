@@ -6,11 +6,50 @@ function getToken() {
 
 function ajax(method, url, body, cb) {
     const xhr = new XMLHttpRequest();
+
+    if (window.AppLoading) {
+        window.AppLoading.requestStarted('Loading data...');
+    }
+
     xhr.open(method, API + url);
     xhr.setRequestHeader('Content-Type', 'application/json');
     const token = getToken();
     if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-    xhr.onload = function () { cb(JSON.parse(xhr.responseText), xhr.status); };
+
+    xhr.onload = function () {
+        let payload = null;
+
+        if (xhr.responseText) {
+            try {
+                payload = JSON.parse(xhr.responseText);
+            } catch (error) {
+                payload = { error: 'Invalid JSON response' };
+            }
+        }
+
+        if (window.AppLoading) {
+            window.AppLoading.requestFinished();
+        }
+
+        cb(payload, xhr.status);
+    };
+
+    xhr.onerror = function () {
+        if (window.AppLoading) {
+            window.AppLoading.requestFinished();
+        }
+
+        cb({ error: 'Network error' }, xhr.status || 0);
+    };
+
+    xhr.onabort = function () {
+        if (window.AppLoading) {
+            window.AppLoading.requestFinished();
+        }
+
+        cb({ error: 'Request aborted' }, xhr.status || 0);
+    };
+
     xhr.send(body ? JSON.stringify(body) : null);
 }
 

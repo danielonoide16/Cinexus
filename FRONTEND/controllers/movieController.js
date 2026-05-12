@@ -1,16 +1,4 @@
-function loadImage(url) {
-    return new Promise(resolve => {
-        const img = new Image();
-
-        img.onload = () => {
-            resolve(true);  
-        };
-
-        img.onerror = () => resolve(false);
-
-        img.src = url;
-    });
-}
+const noPosterPath = '../assets/img/no-poster.png';
 
 function loadGenres() {
 
@@ -60,18 +48,6 @@ function loadYears() {
     });
 }
 
-async function filterValidImages(movies) {
-    const checks = await Promise.all(
-        movies.map(async m => {
-            if (!m.poster) return null;
-
-            const isValid = await loadImage(m.poster);
-            return isValid ? m : null;
-        })
-    );
-
-    return checks.filter(Boolean);
-}
 
 function updatePagination(pagination) {
     document.getElementById('pageInfo').textContent = `Page ${pagination.page} of ${pagination.totalPages}`;
@@ -79,7 +55,7 @@ function updatePagination(pagination) {
     document.getElementById('nextPageBtn').disabled = !pagination.hasNext;
 }
 
-async function renderMovies(page = 1) {
+function renderMovies(page = 1) {
 
     currentPage = page;
 
@@ -154,27 +130,25 @@ async function renderMovies(page = 1) {
 
             return;
         }
-
-        const validMovies =
-            await filterValidImages(movies);
-
-        validMovies.forEach(m => {
+        
+        movies.forEach(m => {
 
             const posterUrl =
                 m.poster ||
-                'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
+                noPosterPath;
 
             container.innerHTML += `
-                <div class="col-md-3">
+                <div class="col-md-3 mb-4 d-flex">
 
                     <div
-                        class="movie-card"
+                        class="movie-card w-100"
                         onclick="goToMovie('${m.tmdbID}')"
                     >
 
                         <img
                             src="${posterUrl}"
                             class="w-100"
+                            onerror="this.src='${noPosterPath}';"
                         >
 
                         <div class="p-2 text-white">
@@ -225,7 +199,7 @@ function loadMovieDetails() {
         document.getElementById('titulo').textContent = tituloPelicula;
         document.getElementById('meta').textContent = formatMovieMeta(movie);
         document.getElementById('descripcion').textContent = movie.plot || 'No description available.';
-        document.getElementById('poster').src = movie.poster || 'https://www.juliedray.com/wp-content/uploads/2022/01/sans-affiche.png';
+        document.getElementById('poster').src = movie.poster || noPosterPath;
         document.getElementById('poster').alt = tituloPelicula;
 
         const trailerFrame = document.getElementById('trailerFrame');

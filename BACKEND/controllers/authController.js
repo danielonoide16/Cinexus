@@ -21,8 +21,14 @@ exports.register = async (req, res) => {
         avatarUrl: ''
     });
 
+    const token = jwt.sign(
+        { id: newUser._id.toString(), name: newUser.name, email: newUser.email },
+        SECRET,
+        { expiresIn: '24h' }
+    );
+
     res.status(201).json({
-        message: 'User registered',
+        token,
         user: {
             id: newUser._id,
             name: newUser.name,

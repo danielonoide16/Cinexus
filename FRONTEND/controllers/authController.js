@@ -30,8 +30,9 @@ function register() {
 
     ajax('POST', '/auth/register', { name, email, password }, function (data, status) {
         if (status === 201) {
-            alert('User registered successfully');
-            toggleForms();
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = 'home.html';
         } else {
             alert(data.error);
         }

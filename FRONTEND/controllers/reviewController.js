@@ -1,6 +1,9 @@
 let allReviews = [];
 let reviewPage = 0;
 const REVIEWS_PER_PAGE = 5;
+let myProfileReviews = [];
+let myProfileReviewPage = 1;
+const PROFILE_REVIEWS_PER_PAGE = 5;
 
 function mostrarResenas() {
     if (!movieId) return;
@@ -173,18 +176,46 @@ function loadMyReviews() {
     ajax('GET', '/reviews/me', null, function(data, status) {
 
         const container = document.getElementById('myReviewsContainer');
+        const reviewsTab = document.querySelectorAll(".tabs li")[0];
 
         if (status !== 200) {
             container.innerHTML = '<p class="text-danger">Could not load reviews.</p>';
+            const oldPagination = document.getElementById('myReviewsPagination');
+            if (oldPagination) oldPagination.remove();
             return;
+        }
+
+        myProfileReviews = data || [];
+        myProfileReviewPage = 1;
+
+        if (reviewsTab) {
+            reviewsTab.textContent = `My Reviews (${myProfileReviews.length})`;
         }
 
         if (!data.length) {
             container.innerHTML = '<p class="text-secondary">You have not written any reviews yet.</p>';
+            const oldPagination = document.getElementById('myReviewsPagination');
+            if (oldPagination) oldPagination.remove();
             return;
         }
 
-        container.innerHTML = data.map(r => `
+        renderMyReviewsPage();
+    });
+}
+
+function renderMyReviewsPage() {
+    const container = document.getElementById('myReviewsContainer');
+    const oldPagination = document.getElementById('myReviewsPagination');
+    const totalPages = Math.max(1, Math.ceil(myProfileReviews.length / PROFILE_REVIEWS_PER_PAGE));
+    const safePage = Math.min(Math.max(myProfileReviewPage, 1), totalPages);
+    const startIndex = (safePage - 1) * PROFILE_REVIEWS_PER_PAGE;
+    const visibleReviews = myProfileReviews.slice(startIndex, startIndex + PROFILE_REVIEWS_PER_PAGE);
+
+    myProfileReviewPage = safePage;
+
+    if (oldPagination) oldPagination.remove();
+
+    container.innerHTML = visibleReviews.map(r => `
             <article class="review" onclick="goToMovie('${r.movie.tmdbID}')">
 
                 <h4>${r.movie.title}</h4>
@@ -205,15 +236,49 @@ function loadMyReviews() {
             </article>
         `).join('');
 
-        const reviewsTab = document.querySelectorAll(".tabs li")[0];
-        reviewsTab.textContent = `My Reviews (${data.length})`;
-    });
+    if (totalPages > 1) {
+        container.insertAdjacentHTML('afterend', `
+            <div id="myReviewsPagination" class="list-pagination">
+                <span class="list-pagination__summary">
+                    Showing ${startIndex + 1}-${Math.min(startIndex + PROFILE_REVIEWS_PER_PAGE, myProfileReviews.length)} of ${myProfileReviews.length} reviews
+                </span>
+                <div class="d-flex gap-2">
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        onclick="changeMyReviewsPage(-1)"
+                        ${safePage === 1 ? 'disabled' : ''}
+                    >
+                        Previous
+                    </button>
+                    <span class="list-meta-chip">Page ${safePage} of ${totalPages}</span>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        onclick="changeMyReviewsPage(1)"
+                        ${safePage === totalPages ? 'disabled' : ''}
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
+        `);
+    }
+}
+
+function changeMyReviewsPage(delta) {
+    const totalPages = Math.max(1, Math.ceil(myProfileReviews.length / PROFILE_REVIEWS_PER_PAGE));
+    myProfileReviewPage = Math.min(Math.max(myProfileReviewPage + delta, 1), totalPages);
+    renderMyReviewsPage();
 }
 
 
 function renderPublicReviews(reviews) {
 
     const container = document.getElementById('myReviewsContainer');
+    const oldPagination = document.getElementById('myReviewsPagination');
+
+    if (oldPagination) oldPagination.remove();
 
     if (!reviews.length) {
         container.innerHTML = `

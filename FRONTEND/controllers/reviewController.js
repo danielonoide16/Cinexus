@@ -36,7 +36,11 @@ function mostrarResenas() {
             return;
         }
 
-        allReviews = data;
+        allReviews = data.slice().sort((a, b) => {
+            const aIsMine = a.user && a.user._id === currentUserId ? -1 : 1;
+            const bIsMine = b.user && b.user._id === currentUserId ? -1 : 1;
+            return aIsMine - bIsMine;
+        });
         reviewPage = 0;
         contenedor.innerHTML = '';
         const oldPag = document.getElementById('reviewPagination');

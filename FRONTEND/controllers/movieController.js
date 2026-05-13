@@ -50,9 +50,19 @@ function loadYears() {
 
 
 function updatePagination(pagination) {
-    document.getElementById('pageInfo').textContent = `Page ${pagination.page} of ${pagination.totalPages}`;
-    document.getElementById('prevPageBtn').disabled = !pagination.hasPrev;
-    document.getElementById('nextPageBtn').disabled = !pagination.hasNext;
+
+    const pageInfo = document.getElementById('pageInfo');
+
+    const page = pagination.page;
+    const total = pagination.totalPages;
+
+    pageInfo.textContent = `Page ${page} of ${total}`;
+
+    document.getElementById('prevPageBtn').disabled =
+        !pagination.hasPrev;
+
+    document.getElementById('nextPageBtn').disabled =
+        !pagination.hasNext;
 }
 
 function renderMovies(page = 1) {
@@ -113,13 +123,7 @@ function renderMovies(page = 1) {
 
         const movies = data.items || [];
 
-        const pagination =
-            data.pagination || {
-                page: 1,
-                totalPages: 1,
-                hasPrev: false,
-                hasNext: false
-            };
+        const pagination = data.pagination || {};
 
         if (!movies.length) {
 

@@ -178,76 +178,142 @@ exports.getMovieByTmdbId = async (req, res) => {
 
 exports.getMovies = async (req, res) => {
 
-    const query = (req.query.q || '').trim();
+    try {
 
-    const genre = (req.query.genre || '').trim();
+        const query = (req.query.q || '').trim();
+        const genre = req.query.genre ? Number(req.query.genre) : null;
+        const year = req.query.year ? Number(req.query.year) : null;
 
-    const year = Number(req.query.year);
+        const page = Math.max(1, Number(req.query.page) || 1);
 
-    const page = Math.max(
-        1,
-        Number(req.query.page) || 1
-    );
+        const sort = req.query.sort || 'popularity.desc';
 
-    // we sort by most recent release date by default, but if year is specified, sort by popularity
-    const sort = (req.query.sort || (year ? 'popularity.desc' : 'primary_release_date.desc')).trim();
+        const ITEMS_PER_PAGE = 20;
 
-    let data;
+        // CASO 1: SOLO SEARCH (TMDB DIRECTO)
+        if (query && !genre && !year) {
 
-    if (query) {
+            const data = await tmdbService.searchMovies({
+                query,
+                page
+            });
 
-        data = await tmdbService.searchMovies({
-            query,
-            page,
-            year
-        });
+            const movies = data.results.map(normalizeMovie);
 
-    } else {
-
-        data = await tmdbService.discoverMovies({
-            page,
-            genre,
-            year,
-            sort
-        });
-    }
-
-    let movies = data.results.map(normalizeMovie);
-    if (year) {
-
-        movies = movies.filter(movie =>
-            movie.year === year
-        );
-    }
-
-    if (genre) {
-
-        movies = movies.filter(movie =>
-            movie.genres.includes(Number(genre))
-        );
-    }
-
-    res.json({
-        items: movies,
-
-        pagination: {
-
-            page: data.page,
-
-            totalPages: Math.min(
-                data.total_pages,
-                500
-            ),
-
-            total: data.total_results,
-
-            hasNext:
-                data.page < data.total_pages,
-
-            hasPrev:
-                data.page > 1
+            return res.json({
+                items: movies,
+                pagination: {
+                    page,
+                    totalPages: Math.min(data.total_pages, 500),
+                    total: data.total_results,
+                    hasNext: page < data.total_pages,
+                    hasPrev: page > 1
+                }
+            });
         }
-    });
+
+        // CASO 2: SOLO DISCOVER (TMDB DIRECTO)
+        if (!query) {
+
+            const data = await tmdbService.discoverMovies({
+                page,
+                genre,
+                year,
+                sort
+            });
+
+            const movies = data.results.map(normalizeMovie);
+
+            return res.json({
+                items: movies,
+                pagination: {
+                    page,
+                    totalPages: Math.min(data.total_pages, 500),
+                    total: data.total_results,
+                    hasNext: page < data.total_pages,
+                    hasPrev: page > 1
+                }
+            });
+        }
+
+        // CASO 3: search + filtros: obtenemos más resultados de TMDB y filtramos localmente para tener un ordenamiento estable
+        const MAX_TMDB_PAGES = 30; 
+
+        let allMovies = [];
+        let tmdbPage = 1;
+        let totalTmdbPages = 1;
+
+        while (
+            tmdbPage <= totalTmdbPages &&
+            tmdbPage <= MAX_TMDB_PAGES
+        ) {
+
+            const data = await tmdbService.searchMovies({
+                query,
+                page: tmdbPage
+            });
+
+            totalTmdbPages = Math.min(
+                data.total_pages,
+                500,
+                MAX_TMDB_PAGES
+            );
+
+            const movies = data.results.map(normalizeMovie);
+
+            allMovies.push(...movies);
+
+            tmdbPage++;
+        }
+
+
+        let filtered = allMovies;
+
+        if (genre) {
+            filtered = filtered.filter(m =>
+                m.genres.includes(genre)
+            );
+        }
+
+        if (year) {
+            filtered = filtered.filter(m =>
+                m.year === year
+            );
+        }
+
+        filtered = filtered.filter(m => m.poster);
+
+        // PAGINACIÓN LOCAL ESTABLE
+
+        const total = filtered.length;
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(total / ITEMS_PER_PAGE)
+        );
+
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+
+        const items = filtered.slice(start, end);
+
+        return res.json({
+            items,
+            pagination: {
+                page,
+                totalPages,
+                total,
+                hasNext: page < totalPages,
+                hasPrev: page > 1
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            error: 'Error loading movies'
+        });
+    }
 };
 
 exports.getGenres = async (req, res) => {

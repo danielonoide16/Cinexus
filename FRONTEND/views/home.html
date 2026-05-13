@@ -68,7 +68,7 @@ requireAuth();
 const user = JSON.parse(localStorage.getItem('user')) || {};
 document.getElementById('navAvatar').textContent = getInitials(user.name);
 let currentPage = 1;
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
 (function() {
     const nav = document.getElementById('navAvatar');
     if (user.avatarUrl) {
@@ -80,12 +80,6 @@ const PAGE_SIZE = 12;
 
 loadGenres();
 loadYears();
-
-function updatePagination(pagination) {
-    document.getElementById('pageInfo').textContent = `Page ${pagination.page} of ${pagination.totalPages}`;
-    document.getElementById('prevPageBtn').disabled = !pagination.hasPrev;
-    document.getElementById('nextPageBtn').disabled = !pagination.hasNext;
-}
 
 
 function changePage(delta) {
